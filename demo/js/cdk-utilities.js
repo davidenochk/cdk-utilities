@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-  angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns','ui.grid.selection',])
+  angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns',])
   .directive('cdkTable', function(){
     return {
       restrict:'EA',
@@ -17,9 +17,9 @@
         noRecordsMessage:'=?',//what message to display when there are no records
         showEdit:'=?',//show edit column at the start so that it can selected
         editRow:'&',//handler for editing the row
-        selectRow:'=?',//select the rows on which you want to do some kind of processing
+        height:'@'//helps to resize the grid when the height changes
       },
-      link:function cdkTableLink(scope, el, attr, $window){
+      link:function cdkTableLink(scope, el, attr){
         // description: Set defaults to the attributes
         scope.options = scope.options == undefined ? [] : scope.options;
         scope.enableFiltering = scope.enableFiltering == undefined ? false : scope.enableFiltering;
@@ -29,9 +29,14 @@
         scope.maxWidth = scope.maxWidth == undefined ? 3000 : scope.maxWidth;
         scope.maxHeight = scope.maxHeight == undefined ? 3000 : scope.maxHeight;
         scope.showEdit = scope.showEdit == undefined ? false : scope.showEdit;
-        scope.selectRow = scope.selectRow == undefined ? true : scope.selectRow;
+        scope.height = scope.height == undefined ? 'auto' : scope.height;
       },
       controller:function cdkTableController($scope, $compile, $window, $attrs){
+
+
+        $attrs.$observe('height', function(newValue){
+          console.log('changed');
+        });
 
         // TODO: get the grid api and check for the handle window resize functionality
         // TODO: watch data to see if data changes and then if it is valid, render the grid
@@ -39,16 +44,12 @@
           if($scope.data){
             if($scope.data.length){
               var data = $scope.data;
-              var options = {
+              $scope.gridOptions = {
                 data:$scope.data,
                 columnDefs:GetColumnDefs($scope.data),
                 minRowsToShow:(data.length < 10 ? data.length : 10),
-                minWidth:$scope.minWidth,
-                enableRowSelection:true,
-                enableRowHeaderSelection:true,
-                multiSelect:false
+                minWidth:$scope.minWidth
               };
-              $scope.gridOptions = options;
               $scope.ShowDefaultGrid();
             }
             else{$scope.NoRecords();}
@@ -62,7 +63,7 @@
         $scope.ShowDefaultGrid = function ShowDefaultGrid(){
           // TODO: replace
           var elm = document.getElementById($scope.id);
-          var el = $compile('<div data-ui-grid="gridOptions" data-ui-grid="gridOptions" data-ui-grid-resize-columns="" data-ui-grid-auto-resize="" ' + ($scope.selectRow ? 'data-ui-grid-selection' : '') + ' style="margin:0 auto; max-height:100%; max-width:100%; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + 'px; height:' + $scope.height + 'px;"></div>')($scope);
+          var el = $compile('<div data-ui-grid="gridOptions" data-ui-grid="gridOptions" data-ui-grid-resize-columns="" data-ui-grid-auto-resize="" style="margin:0 auto; max-height: ' + $scope.maxHeight + 'px; max-width:' + $scope.maxWidth + 'px; width:' + ($scope.gridWidth + 18) + 'px; height:' + $scope.height + 'px;"></div>')($scope);
           angular.element(elm).append(el);
         }
         /**
