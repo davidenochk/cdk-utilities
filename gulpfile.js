@@ -18,6 +18,14 @@ gulp.task('variables', function(){
   .pipe(gulp.dest('./src/less'))
 })
 
+gulp.task('less-main', function(){
+  gulp.src('./ui-grid/src/less/main.less')
+  .pipe(less())
+  .pipe(minifyCss())
+  .pipe(rename('./src/css/ui-grid-main.min.css'))
+  .pipe(gulp.dest('./'))
+});
+
 gulp.task('less', function(){
   gulp.src('./src/less/main.less')
   .pipe(less())

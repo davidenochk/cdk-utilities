@@ -38,8 +38,8 @@ Array.prototype.findAll = function (vl, c) {
                 options: '=',//column options which consists the configuration for each column
                 enableFiltering: '=?',//should the filtering panel be shown
                 saveFilters: '=?',//should the filters be saved to database
-                maxWidth: '=?',//width of the grid to which it should expand
-                maxHeight: '=?',//height of the grid to which it can expand
+                maxWidth: '@',//width of the grid to which it should expand
+                maxHeight: '@',//height of the grid to which it can expand
                 autoGenerateColumns: '=?',//Should the columns be auto generated from the input model
                 exportToExcel: '=?',//display the export to excel icon
                 noRecordsMessage: '=?',//what message to display when there are no records
@@ -51,6 +51,7 @@ Array.prototype.findAll = function (vl, c) {
                 autoHeightOffset: '=?',//auto height offset calculation
                 getTemplate: '&',//for getting the templates
                 class: '=?',//add the cell class
+                methods: '=?',//map external methods
                 selectRow: '=?',//select the rows on which you want to do some kind of processing
             },
             link: function cdkTableLink(scope, el, attr, $window) {
@@ -69,6 +70,7 @@ Array.prototype.findAll = function (vl, c) {
                 scope.headerOffset = scope.headerOffset == undefined ? 20 : scope.headerOffset;
                 scope.autoHeightOffset = scope.autoHeightOffset == undefined ? 30 : scope.autoHeightOffset;
                 scope.class = scope.class == undefined ? '' : scope.class;
+                scope.methods = scope.methods == undefined ? {} : scope.methods;
             },
             controller: function cdkTableController($scope, $compile, $window, $attrs) {
 
@@ -82,9 +84,10 @@ Array.prototype.findAll = function (vl, c) {
                                 data: $scope.data,
                                 columnDefs: GetColumnDefs($scope.data),
                                 minRowsToShow: (data.length < 30 ? data.length : 30),
-                                rowHeight:21,
+                                rowHeight: 21,
                                 minWidth: $scope.minWidth,
-                                enableFiltering: true
+                                enableFiltering: true,
+                                rowTemplate: '<div ng-class="{\'highlightRow\': row.entity.selectbit === true}" ng-click="row.entity.selectbit = !row.entity.selectbit" ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
                             };
                             $scope.gridOptions = options;
                             $scope.ShowDefaultGrid();
@@ -104,9 +107,11 @@ Array.prototype.findAll = function (vl, c) {
                         elm.removeChild(elm.children[0]);
                     } catch (e) { }
                     var offset = FindOffsetHeight() - $scope.autoHeightOffset;
-                    $scope.maxHeight = ($scope.maxHeight == 'AUTO' ? offset : $scope.maxHeight);
-                    $scope.maxHeight += 50;
-                    var el = $compile('<div data-ui-grid="gridOptions" data-ui-grid="gridOptions" ui-grid-resize-columns data-ui-grid-auto-resize="" ' + ($scope.selectRow ? 'data-ui-grid-selection' : '') + ' style="margin:0 auto; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + 'px; height:' + $scope.maxHeight + 'px !important;max-width:100%;"></div>')($scope);
+                    console.log($scope.maxHeight, offset);
+                    var maxHeight = 0;
+                    maxHeight = ($scope.maxHeight == 'AUTO' ? offset : $scope.maxHeight);
+                    maxHeight += 50;
+                    var el = $compile('<div data-ui-grid="gridOptions" ui-grid-resize-columns data-ui-grid-auto-resize="" ' + ($scope.selectRow ? 'data-ui-grid-selection' : '') + ' style="margin:0 auto; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + 'px; height:' + maxHeight + 'px !important;max-width:100%;"></div>')($scope);
                     el.clientHeight = $scope.maxHeight;
                     angular.element(elm).append(el);
                 }
@@ -131,7 +136,7 @@ Array.prototype.findAll = function (vl, c) {
                         var opt = columnOptions[i];
                         var cellTemp = '';
                         if (opt.columnID == 'EDIT')
-                            cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.EditRow(row.entity.CODE)">Edit</div>';
+                            cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.editRow({value:row.entity.Request})">Edit</div>';
                         if (opt.columnID == 'CHECK')
                             cellTemp = '<div class="ui-grid-cell-contents"><input type="checkbox" data-ng-model="row.entity.selectbit"/></div>';
                         if (opt.template) {
@@ -233,7 +238,7 @@ Array.prototype.findAll = function (vl, c) {
                             width: '1',
                             enableSorting: false,
                             filterable: false,
-                            visible:true
+                            visible: true
                         })
                     }
                     // TODO: Add Check Column Definition
