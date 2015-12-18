@@ -1,0 +1,343 @@
+//@import "../assets/stylesheets/_bootstrap-compass";
+@import "bootstrap";
+/*Site Variables*/
+$highlight_bg_color: #ffff99;
+
+.container {
+    width: 98%;
+    max-width: 98%;
+    padding: 10px 0;
+}
+
+a label {
+    cursor: pointer;
+}
+
+label {
+    line-height: 1.8em;
+    white-space: nowrap;
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+
+.close {
+    color: #fff;
+    opacity: 1;
+}
+
+.headerLink {
+    color: gold;
+}
+
+.headerLink:hover {
+    color: gold;
+}
+
+.header {
+    display: block;
+    background-color: #EEE;
+    min-height: 70px;
+}
+
+.header-logo {
+    position: relative;
+    left: 0;
+    margin: 0;
+    top: 0;
+    height: 70px;
+}
+
+.app-title {
+    font-size: 28px;
+    font-weight: 600;
+    width: 100%;
+    position: absolute;
+    vertical-align: middle;
+    display: block;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-top: -3px;
+    color: #444;
+    top: 10px;
+}
+
+.page-title-wrap {
+    width: 100%;
+    text-align: right;
+    position: relative;
+    height: 32px;
+    margin-bottom: 0;
+}
+
+.page-title-wrap md-icon {
+    margin-top: 3px;
+}
+
+.page-title {
+    display: block;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 400;
+    color: #fff;
+    margin-top: -25px;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    left: 0;
+}
+
+.header-user-wrap {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    font-weight: normal;
+}
+
+.header-user-wrap .header-user-name {
+    font-size: 13px;
+    display: block;
+    text-align: right;
+}
+
+.header-user-wrap .header-user-role {
+    font-size: 12px;
+    text-align: right;
+    display: block;
+    height: 19px;
+}
+
+.header-user-wrap .header-server-name {
+    font-size: 13px;
+    text-align: right;
+    display: block;
+    color: transparent;
+}
+
+.header-main-title {
+    font-size: 22px;
+    color: green;
+    display: block;
+    line-height: 22px;
+}
+
+.header-sub-title {
+    font-size: 16px;
+    color: darkgreen;
+    line-height: 16px;
+    display: block;
+}
+
+.highlightRow, .highlightRow td {
+    background-color: $highlight_bg_color;
+}
+/*CDK grid styling*/
+.CDK_grid {
+    font-size: 1em !important;
+
+    md-checkbox {
+        margin: 2px;
+    }
+
+    tr {
+        padding: 0;
+    }
+
+    thead tr th, tbody tr th {
+        border: 1px solid #4c6477;
+        text-align: left;
+        font-size: 0.9em;
+        min-height: 24px;
+        vertical-align: middle;
+        position: relative;
+        background-color: $cdk-salesforceColor !important;
+        color: #fff;
+        padding: 3px 5px;
+        font-weight: 400;
+
+        span {
+            line-height: 28px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        span:hover {
+            text-decoration: underline;
+        }
+
+        select {
+            float: right;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        a {
+            color: #EEE !important;
+            padding: 3px 1px;
+            cursor: pointer;
+        }
+    }
+
+    tr td {
+        border: 1px solid #DDD;
+        color: #333;
+        text-align: left;
+        font-weight: normal;
+        font-size: 0.9em;
+        padding: 1px 5px;
+        white-space: nowrap;
+
+        div {
+            max-width: 100px;
+            -ms-text-overflow: ellipsis;
+            -o-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+
+
+    td label {
+        font-weight: normal;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #fff;
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #EEE;
+    }
+
+    thead input {
+        float: left;
+    }
+}
+
+/*CDK grid with hover for clicks*/
+.CDK_grid_hover {
+    td, thead tr th {
+        cursor: pointer;
+    }
+
+    tbody tr:hover, tr:hover {
+        background-color: #ffff99;
+    }
+
+    thead tr:hover {
+        background-color: transparent;
+    }
+}
+
+/*CDK grid styling with transparent background*/
+.CDK_grid_trans {
+    tbody tr:nth-child(odd), td, tr {
+        background-color: transparent;
+    }
+}
+
+.hover_bg tbody tr {
+
+    &:hover {
+        background-color: $highlight_bg_color;
+
+        td {
+            background-color: transparent;
+        }
+    }
+}
+.stretch {
+    width: 100%;
+}
+
+.border {
+    border-radius: 7px;
+    border: 1px solid #DDD;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+    margin: 10px;
+}
+
+.border-thin {
+    border-radius: 3px;
+    border: 1px solid #DDD;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.mar-up-down {
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.mar-up {
+    margin-top: 30px;
+}
+
+.form-padding .row {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.form-padding .row .col-md-4 .btn {
+    margin-right: 10px;
+}
+
+.tab-content {
+    padding: 10px 3px;
+    background-color: #FAFAFA;
+    border: 1px solid #C0C0C0;
+    max-width: 100%;
+    overflow: auto;
+    height: auto;
+    min-height: 350px;/*For Calendars inside the panel, they are not appearing outside the tab-content and getting hidden*/
+}
+
+.nav-tabs > li > a {
+    cursor: pointer;
+}
+
+.no-data {
+    font-weight: bold;
+    text-transform: uppercase;
+    display: block;
+    text-align: center;
+}
+
+.no-data::after, .no-data::before {
+    content: '-';
+    margin: 0 5px;
+}
+
+.typeahead li {
+    cursor: pointer;
+}
+
+.text-right {
+    text-align: right;
+    display: block;
+}
+
+th {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: #FEFEFE;
+}
+
+.text-center, .text-center th {
+    text-align: center;
+}
+
+.text-center th .btn {
+    margin-left: 1px;
+}
+.row{
+    margin-left:0;
+    margin-right:0;
+}
+.grid{
+    font-size:12px;
+}
