@@ -234,7 +234,7 @@ Array.prototype.findAll = function (vl, c) {
                     if ($scope.showEdit) {
                         columnOptions.push({
                             columnID: 'EDIT',
-                            columnName: 'E',
+                            columnName: '',
                             width: '1',
                             enableSorting: false,
                             filterable: false,
@@ -245,7 +245,7 @@ Array.prototype.findAll = function (vl, c) {
                     if ($scope.showCheck) {
                         columnOptions.push({
                             columnID: 'CHECK',
-                            columnName: 'C',
+                            columnName: '',
                             width: '1',
                             enableSorting: false,
                             filterable: false,
