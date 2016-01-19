@@ -18,7 +18,8 @@ Array.prototype.findAll = function (vl, c) {
                 dt = dt == '01/01/0001' ? '' : dt;
                 return dt;
             } else {
-                return '';
+              console.log(aDate);
+                return null;
             }
         }
     })
@@ -36,6 +37,12 @@ Array.prototype.findAll = function (vl, c) {
                 id: '@',//id of the grid
                 data: '=model',//data as an input
                 options: '=',//column options which consists the configuration for each column
+                  //POSSIBLE values
+                  //columnID
+                  //columnName
+                  //filterable
+                  //sortable
+                  //hide
                 enableFiltering: '=?',//should the filtering panel be shown
                 saveFilters: '=?',//should the filters be saved to database
                 maxWidth: '@',//width of the grid to which it should expand
@@ -53,6 +60,9 @@ Array.prototype.findAll = function (vl, c) {
                 class: '=?',//add the cell class
                 methods: '=?',//map external methods
                 selectRow: '=?',//select the rows on which you want to do some kind of processing
+                values:'=?',//pass on values from external scope to the appscope
+                showFoots:'=?',//show footers for the columns,
+                horScroll:'=?',//to show or hide horizontal scrollbar
             },
             link: function cdkTableLink(scope, el, attr, $window) {
                 // description: Set defaults to the attributes
@@ -71,15 +81,17 @@ Array.prototype.findAll = function (vl, c) {
                 scope.autoHeightOffset = scope.autoHeightOffset == undefined ? 30 : scope.autoHeightOffset;
                 scope.class = scope.class == undefined ? '' : scope.class;
                 scope.methods = scope.methods == undefined ? {} : scope.methods;
+                scope.showColumnFooter = scope.showFoots === undefined ? false : scope.showFoots;
+                scope.horScroll = scope.horScroll === undefined ? true : scope.horScroll;
             },
-            controller: function cdkTableController($scope, $compile, $window, $attrs) {
-
+            controller: function cdkTableController($scope, $compile, $window, $attrs, uiGridConstants) {
                 // TODO: get the grid api and check for the handle window resize functionality
                 // TODO: watch data to see if data changes and then if it is valid, render the grid
                 $scope.$watch('data', function () {
                     if ($scope.data) {
                         if ($scope.data.length) {
                             var data = $scope.data;
+                            data = ProcessDataForCorrectDates(data);
                             var options = {
                                 data: $scope.data,
                                 columnDefs: GetColumnDefs($scope.data),
@@ -87,7 +99,11 @@ Array.prototype.findAll = function (vl, c) {
                                 rowHeight: 21,
                                 minWidth: $scope.minWidth,
                                 enableFiltering: true,
-                                rowTemplate: '<div ng-class="{\'highlightRow\': row.entity.selectbit === true}" ng-click="row.entity.selectbit = !row.entity.selectbit" ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
+                                showGridFooter:true,
+                                showColumnFooter: $scope.showColumnFooter,
+                                columnFooterHeight: 20,
+                                enableHorizontalScrollbar:$scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
+                                rowTemplate: '<div ng-click="row.entity.selectbit = !row.entity.selectbit" ng-class="{\'highlightRow\': row.entity.selectbit === true}" ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
                             };
                             $scope.gridOptions = options;
                             $scope.ShowDefaultGrid();
@@ -95,6 +111,22 @@ Array.prototype.findAll = function (vl, c) {
                         else { $scope.NoRecords(); }
                     }
                 });
+                var ProcessDataForCorrectDates = function ProcessDataForCorrectDates(data){
+                  //console.log(data);
+                  var options = $scope.options;
+                  for(var i = 0;i<options.length;i++){
+                    //For each type of date, loop through data and convert value to date
+                    if(options[i].type && options[i].type.toUpperCase() === 'DATE'){
+                      console.log(options[i]);
+                      for(var j = 0;j<data.length;j++){
+                        if(data[j][options[i].columnID])
+                        data[j][options[i].columnID] = new Date(data[j][options[i].columnID]);
+                      }
+                    }
+                  }
+                  //console.log(data);
+                  return data;
+                }
                 // TODO: implement a function to show no records message
                 $scope.NoRecords = function NoRecords() {
                     // TODO: show 'No records message'
@@ -107,7 +139,7 @@ Array.prototype.findAll = function (vl, c) {
                         elm.removeChild(elm.children[0]);
                     } catch (e) { }
                     var offset = FindOffsetHeight() - $scope.autoHeightOffset;
-                    console.log($scope.maxHeight, offset);
+                    //console.log($scope.maxHeight, offset);
                     var maxHeight = 0;
                     maxHeight = ($scope.maxHeight == 'AUTO' ? offset : $scope.maxHeight);
                     maxHeight += 50;
@@ -135,12 +167,18 @@ Array.prototype.findAll = function (vl, c) {
                     for (var i = 0; i < columnOptions.length; i++) {
                         var opt = columnOptions[i];
                         var cellTemp = '';
+                        var footTemp = '';
+                        var showFoot = false;
                         if (opt.columnID == 'EDIT')
                             cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.editRow({value:row.entity.Request})">Edit</div>';
                         if (opt.columnID == 'CHECK')
-                            cellTemp = '<div class="ui-grid-cell-contents"><input type="checkbox" data-ng-model="row.entity.selectbit"/></div>';
+                            cellTemp = '<div class="ui-grid-cell-contents"><input type="checkbox" data-ng-click="row.entity.selectbit = !row.entity.selectbit" data-ng-model="row.entity.selectbit"/></div>';
                         if (opt.template) {
                             cellTemp = $scope.getTemplate({ value: opt.template });
+                        }
+                        if(opt.footTemplate){
+                            footTemp = $scope.getTemplate({value: opt.footTemplate});
+                            showFoot = true;
                         }
                         //auto calculate the column width from data value length
                         var dataLength = 0;
@@ -184,6 +222,8 @@ Array.prototype.findAll = function (vl, c) {
                         o.visible = (opt.visible === undefined ? true : opt.visible);
                         o.enableFiltering = opt.filterable;
                         o.cellClass = opt.class ? opt.class : '';
+                        o.footerCellTemplate = footTemp ? footTemp : '';
+                        o.showColumnFooter = showFoot;
                         o.type = opt.type ? opt.type : '';
                         if (o.type.length) {
                             if (o.type === 'floatnumber') {
@@ -209,7 +249,7 @@ Array.prototype.findAll = function (vl, c) {
                             totalWidth += (width + headerOffset);
                     };
                     $scope.gridWidth = totalWidth + 30 + errorWidth;
-                    console.log(columnDefs);
+                    //console.log(columnDefs);
                     return columnDefs;
                 }
                 /**
@@ -300,9 +340,10 @@ Array.prototype.findAll = function (vl, c) {
                         option.filterable = colOpts.filterable != undefined ? colOpts.filterable : false;
                         option.template = colOpts.template ? colOpts.template : '';
                         option.type = colOpts.type ? colOpts.type : '';
+                        option.footTemplate = colOpts.footTemplate ? colOpts.footTemplate : '';
                         columnOptions.push(option);
                     }
-                    console.log(columnOptions);
+                    //console.log(columnOptions);
                     return columnOptions;
                 }
                 var GetWidth = function GetWidth(txt) {
