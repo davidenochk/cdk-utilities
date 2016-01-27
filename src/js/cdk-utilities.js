@@ -8,6 +8,15 @@ Array.prototype.findAll = function (vl, c) {
     }
     return v;
 };
+Array.prototype.findOne = function (vl, c) {
+    var v = [];
+    for (var i = 0; i < this.length; i++) {
+        //get the array item
+        if (this[i][c] == vl)
+            return this[i];
+    }
+    return v;
+};
 (function () {
     angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns'])
     .filter('formatDate', function ($filter) {
@@ -18,8 +27,8 @@ Array.prototype.findAll = function (vl, c) {
                 dt = dt == '01/01/0001' ? '' : dt;
                 return dt;
             } else {
-              console.log(aDate);
-                return null;
+              //console.log(aDate);
+              return null;
             }
         }
     })
@@ -37,12 +46,6 @@ Array.prototype.findAll = function (vl, c) {
                 id: '@',//id of the grid
                 data: '=model',//data as an input
                 options: '=',//column options which consists the configuration for each column
-                  //POSSIBLE values
-                  //columnID
-                  //columnName
-                  //filterable
-                  //sortable
-                  //hide
                 enableFiltering: '=?',//should the filtering panel be shown
                 saveFilters: '=?',//should the filters be saved to database
                 maxWidth: '@',//width of the grid to which it should expand
@@ -62,7 +65,10 @@ Array.prototype.findAll = function (vl, c) {
                 selectRow: '=?',//select the rows on which you want to do some kind of processing
                 values:'=?',//pass on values from external scope to the appscope
                 showFoots:'=?',//show footers for the columns,
-                horScroll:'=?',//to show or hide horizontal scrollbar
+                horScroll:'=?',//to show or hide horizontal scrollbar,
+                defSort:'=?',//to sort the grid by this column as soon as the grid loads
+                priority:'@',//sort on the column according to this priority
+                offsetRowHeight:'@',//used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows
             },
             link: function cdkTableLink(scope, el, attr, $window) {
                 // description: Set defaults to the attributes
@@ -83,8 +89,12 @@ Array.prototype.findAll = function (vl, c) {
                 scope.methods = scope.methods == undefined ? {} : scope.methods;
                 scope.showColumnFooter = scope.showFoots === undefined ? false : scope.showFoots;
                 scope.horScroll = scope.horScroll === undefined ? true : scope.horScroll;
+                scope.offsetRowHeight = scope.offsetRowHeight === undefined ? 0 : scope.offsetRowHeight;
+                scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
             },
             controller: function cdkTableController($scope, $compile, $window, $attrs, uiGridConstants) {
+                // NOTE: Defaults for the gridOptions
+                $scope.rowHeight = 21;
                 // TODO: get the grid api and check for the handle window resize functionality
                 // TODO: watch data to see if data changes and then if it is valid, render the grid
                 $scope.$watch('data', function () {
@@ -95,15 +105,15 @@ Array.prototype.findAll = function (vl, c) {
                             var options = {
                                 data: $scope.data,
                                 columnDefs: GetColumnDefs($scope.data),
-                                minRowsToShow: (data.length < 30 ? data.length : 30),
-                                rowHeight: 21,
+                                minRowsToShow: (data.length < 35 ? data.length : 35),
+                                rowHeight: $scope.rowHeight,
                                 minWidth: $scope.minWidth,
                                 enableFiltering: true,
                                 showGridFooter:true,
                                 showColumnFooter: $scope.showColumnFooter,
                                 columnFooterHeight: 20,
                                 enableHorizontalScrollbar:$scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
-                                rowTemplate: '<div ng-click="row.entity.selectbit = !row.entity.selectbit" ng-class="{\'highlightRow\': row.entity.selectbit === true}" ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
+                                rowTemplate: '<div ' + ($scope.showCheck ? 'ng-click="row.entity.selectbit = !row.entity.selectbit"  ng-class="{\'highlightRow\': row.entity.selectbit === true}" ' : '') + ' ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
                             };
                             $scope.gridOptions = options;
                             $scope.ShowDefaultGrid();
@@ -117,7 +127,6 @@ Array.prototype.findAll = function (vl, c) {
                   for(var i = 0;i<options.length;i++){
                     //For each type of date, loop through data and convert value to date
                     if(options[i].type && options[i].type.toUpperCase() === 'DATE'){
-                      console.log(options[i]);
                       for(var j = 0;j<data.length;j++){
                         if(data[j][options[i].columnID])
                         data[j][options[i].columnID] = new Date(data[j][options[i].columnID]);
@@ -138,21 +147,50 @@ Array.prototype.findAll = function (vl, c) {
                     try {
                         elm.removeChild(elm.children[0]);
                     } catch (e) { }
-                    var offset = FindOffsetHeight() - $scope.autoHeightOffset;
-                    //console.log($scope.maxHeight, offset);
+                    //console.log($scope.maxHeight, $scope.autoHeightOffset, FindDataHeight(), FindOffsetHeight());
+                    var offset = $scope.autoHeightOffset ? $scope.autoHeightOffset : 0;
+                    var dataHeight = FindDataHeight();
+                    var gridMaxHeight = FindOffsetHeight();
                     var maxHeight = 0;
-                    maxHeight = ($scope.maxHeight == 'AUTO' ? offset : $scope.maxHeight);
-                    maxHeight += 50;
-                    var el = $compile('<div data-ui-grid="gridOptions" ui-grid-resize-columns data-ui-grid-auto-resize="" ' + ($scope.selectRow ? 'data-ui-grid-selection' : '') + ' style="margin:0 auto; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + 'px; height:' + maxHeight + 'px !important;max-width:100%;"></div>')($scope);
-                    el.clientHeight = $scope.maxHeight;
+                    maxHeight = $scope.maxHeight != 'AUTO' ? $scope.maxHeight : (maxHeight < FindDataHeight() ? maxHeight : FindDataHeight());
+                    var calculatedHeight;
+                    //If maxHeight is already given which means not auto
+                    if(parseInt($scope.maxHeight) > 0){
+                      calculatedHeight = parseInt($scope.maxHeight);
+                    }
+                    //maxHeight should be auto
+                    else{
+                      //If actual data height is more than the occupiable height on the screen, then calculatedHeight should be the occupiable height
+                      //or should be the data height
+                      if(dataHeight > gridMaxHeight){
+                        calculatedHeight = gridMaxHeight;
+                      }
+                      else {
+                        calculatedHeight = dataHeight;
+                      }
+                    }
+                    //Use the offset height
+                    calculatedHeight = calculatedHeight - offset;
+                    //console.log(calculatedHeight);
+                    var el = $compile('<div class="grid" data-ui-grid="gridOptions" ui-grid-resize-columns data-ui-grid-auto-resize="" style="margin:0 auto; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + ' px; max-height:'+calculatedHeight+'px !important;height:auto !important;max-width:100%;"></div>')($scope);
+                    //el.clientHeight = maxHeight - offset;
                     angular.element(elm).append(el);
                 }
                 // TODO: Find the offset height from the top of the grid and the innerHeight of the document
                 // padding
                 var FindOffsetHeight = function () {
                     var elm = document.getElementById($scope.id);
-                    var height = document.body.clientHeight;
+                    var height = document.body.scrollHeight;
                     return height - elm.offsetTop;
+                }
+                /**
+                // TODO: Find the height that could be occupied by the records while displaying
+                @description Used to set the height to auto so that any number of records which would occupy more height that the maxHeight
+                  there in the screen, it would set the height to the minimum of these
+                */
+                var FindDataHeight = function FindDataHeight(){
+                  //console.log($scope.offsetRowHeight);
+                  return $scope.data.length * $scope.rowHeight + $scope.offsetRowHeight;
                 }
                 /**
                 @description Build the column definitions for the input data to display in the grid
@@ -161,6 +199,7 @@ Array.prototype.findAll = function (vl, c) {
                     var dataRow = data[0];
                     var columnDefs = [];
                     var columnOptions = BuildColumnOptions(data);
+                    //console.log(columnOptions);
                     var headerOffset = $scope.headerOffset;
                     var totalWidth = 0;
                     var errorWidth = 0;
@@ -168,6 +207,7 @@ Array.prototype.findAll = function (vl, c) {
                         var opt = columnOptions[i];
                         var cellTemp = '';
                         var footTemp = '';
+                        var headTemp = '';
                         var showFoot = false;
                         if (opt.columnID == 'EDIT')
                             cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.editRow({value:row.entity.Request})">Edit</div>';
@@ -179,6 +219,15 @@ Array.prototype.findAll = function (vl, c) {
                         if(opt.footTemplate){
                             footTemp = $scope.getTemplate({value: opt.footTemplate});
                             showFoot = true;
+                        }
+                        if(opt.headTemplate){
+                            headTemp = $scope.getTemplate({value:opt.headTemplate});
+                        }
+                        var sort = {};
+                        //Building the sort object
+                        if(opt.defSort && opt.defSort != ''){
+                          sort.direction = opt.defSort.toUpperCase() == 'ASC' ? uiGridConstants.ASC : opt.defSort.toUpperCase() == 'DESC' ? uiGridConstants.DESC : '';
+                          sort.priority = opt.priority;
                         }
                         //auto calculate the column width from data value length
                         var dataLength = 0;
@@ -223,7 +272,10 @@ Array.prototype.findAll = function (vl, c) {
                         o.enableFiltering = opt.filterable;
                         o.cellClass = opt.class ? opt.class : '';
                         o.footerCellTemplate = footTemp ? footTemp : '';
+                        o.headerCellTemplate = headTemp ? headTemp : '';
                         o.showColumnFooter = showFoot;
+                        o.sort = sort;
+
                         o.type = opt.type ? opt.type : '';
                         if (o.type.length) {
                             if (o.type === 'floatnumber') {
@@ -341,6 +393,9 @@ Array.prototype.findAll = function (vl, c) {
                         option.template = colOpts.template ? colOpts.template : '';
                         option.type = colOpts.type ? colOpts.type : '';
                         option.footTemplate = colOpts.footTemplate ? colOpts.footTemplate : '';
+                        option.headTemplate = colOpts.headTemplate ? colOpts.headTemplate : '';
+                        option.defSort = colOpts.defSort ? colOpts.defSort : '';
+                        option.priority = colOpts.priority ? colOpts.priority : '';
                         columnOptions.push(option);
                     }
                     //console.log(columnOptions);
@@ -358,9 +413,6 @@ Array.prototype.findAll = function (vl, c) {
                 var ChangeWidth = function ChangeWidth(id, width) {
                     angular.element(document.getElementById(id)).css('width', width + 'px');
                 }
-
-                // TODO: implement a function to resize the grid when the height of the container changes, read height property
-
             }
         }
     })

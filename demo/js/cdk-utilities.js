@@ -63,7 +63,8 @@
         $scope.ShowDefaultGrid = function ShowDefaultGrid(){
           // TODO: replace
           var elm = document.getElementById($scope.id);
-          var el = $compile('<div data-ui-grid="gridOptions" data-ui-grid="gridOptions" data-ui-grid-resize-columns="" data-ui-grid-auto-resize="" style="margin:0 auto; max-height: ' + $scope.maxHeight + 'px; max-width:' + $scope.maxWidth + 'px; width:' + ($scope.gridWidth + 18) + 'px; height:' + $scope.height + 'px;"></div>')($scope);
+          elm.innerHTML = '';
+          var el = $compile('<div data-ui-grid="gridOptions" data-ui-grid="gridOptions" data-ui-grid-resize-columns="" data-ui-grid-auto-resize="" style="margin:0 auto; max-height: ' + $scope.maxHeight + 'px; max-width:100%; width:' + ($scope.gridWidth + 18) + 'px; height:' + $scope.height + 'px;"></div>')($scope);
           angular.element(elm).append(el);
         }
         /**

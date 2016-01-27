@@ -15,10 +15,38 @@
         font-family:'RobotoDraft';
         font-size:0.8em;
       }
+      .right{
+        text-align: right;
+      }
     </style>
   </head>
-  <body data-ng-controller="demoController">
-    {{title}}
-    <cdk-table id='gridID' model='data' select-row="true" auto-generate-columns="true" show-edit="true" style="height:500px; max-width:100px;"></cdk-table>
+  <body data-ng-controller="demoController" style="padding-top:150px;">
+    <cdk-table id="thirdTable" class="mar-up-down" show-check="true" model="data" get-template="GetTemplate(value)" show-edit="true" methods="{reopen : reopen}"
+    edit-row="EditRow({value:value})" auto-generate-columns="false" header-offset="25" max-height="AUTO" auto-height-offset="160"
+                    options="[
+                    {columnID:'Reopen', columnName:'Reopen', width:'40', template:'reopen'},
+                    {columnID:'RequestID', columnName:'Request', width:'55', template:'request', filterable:true},
+                    {columnID:'Project',columnName:'Project', template:'project', width:'50', filterable:true},
+                    {columnID:'SF_SubProject',columnName:'SubProject', template:'subproject', width:'80', filterable:true},
+                    {columnID:'CMF',columnName:'CMF', template:'cmf', width:'50', filterable:true},
+                    {columnID:'LocationCMF',columnName:'Location CMF', width:'90', filterable:true, hide:true},
+                    {columnID:'Activity',columnName:'Activity', width:'90', filterable:true, hide:true},
+                    {columnID:'Assignment',columnName:'Assignment', width:'90', filterable:true, hide:true},
+                    {columnID:'TaskStep',columnName:'Step', filter:'number : 2 | toNumber', width:'50'},
+                    {columnID:'TaskDescription',columnName:'Task Description', width:'120', filterable:true, hide:true},
+                    {columnID:'PlannedStartDate', columnName:'Planned Start', filter:'formatDate', width:'60'},
+                    {columnID:'NeedByDate', columnName:'Planned End Date', filter:'formatDate', width:'60'},
+                    {columnID:'PlannedDays', columnName:'Planned Days', width:'30'},
+                    {columnID:'GoLiveDate', columnName:'Go Live Date', filter:'formatDate', width:'60', type:'date'},
+                    {columnID:'ActualStartDate', columnName:'Actual Start', filter:'formatDate', width:'60'},
+                    {columnID:'ActualEndDate', columnName:'Actual End', filter:'formatDate', width:'60'},
+                    {columnID:'ActualDays', columnName:'Actual Days', width:'30'},
+                    {columnID:'RequestType', columnName:'Request Type', width:'50'},
+                    {columnID:'CancelledReason', columnName:'NA Reason', width:'80', filterable:true, hide:true},
+                    {columnID:'MigrationStatus', columnName:'Migration Reason', width:'90', filterable:true, hide:true},
+                    {columnID:'UpdatedBy', columnName:'Updated By', width:'50'},
+                    {columnID:'UpdatedDate', columnName:'Updated Date', filter:'date : \'shortDate\'', width:'70', hide:true},
+                    {columnID:'VisionCase', columnName:'Vision Case #', width:'85', filterable:true}
+                    ]"></cdk-table>
   </body>
 </html>
