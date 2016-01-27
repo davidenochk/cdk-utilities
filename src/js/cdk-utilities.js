@@ -43,32 +43,33 @@ Array.prototype.findOne = function (vl, c) {
         return {
             restrict: 'EA',
             scope: {
-                id: '@',//id of the grid
-                data: '=model',//data as an input
-                options: '=',//column options which consists the configuration for each column
-                enableFiltering: '=?',//should the filtering panel be shown
-                saveFilters: '=?',//should the filters be saved to database
-                maxWidth: '@',//width of the grid to which it should expand
-                maxHeight: '@',//height of the grid to which it can expand
-                autoGenerateColumns: '=?',//Should the columns be auto generated from the input model
-                exportToExcel: '=?',//display the export to excel icon
-                noRecordsMessage: '=?',//what message to display when there are no records
-                showEdit: '=?',//show edit column at the start so that it can selected
-                filterable: '=?',//to be able to filter on the column
-                showCheck: '=?',//show check column at the start so that it can be selected
-                editRow: '&',//handler for editing the row
-                headerOffset: '=?',//header offset value
-                autoHeightOffset: '=?',//auto height offset calculation
-                getTemplate: '&',//for getting the templates
-                class: '=?',//add the cell class
-                methods: '=?',//map external methods
-                selectRow: '=?',//select the rows on which you want to do some kind of processing
-                values:'=?',//pass on values from external scope to the appscope
-                showFoots:'=?',//show footers for the columns,
-                horScroll:'=?',//to show or hide horizontal scrollbar,
-                defSort:'=?',//to sort the grid by this column as soon as the grid loads
-                priority:'@',//sort on the column according to this priority
-                offsetRowHeight:'@',//used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows
+                id: '@',/*id of the grid*/
+                data: '=model',/*data as an input*/
+                options: '=',/*column options which consists the configuration for each column*/
+                enableFiltering: '=?',/*should the filtering panel be shown*/
+                saveFilters: '=?',/*should the filters be saved to database*/
+                maxWidth: '@',/*width of the grid to which it should expand*/
+                maxHeight: '@',/*height of the grid to which it can expand*/
+                autoGenerateColumns: '=?',/*Should the columns be auto generated from the input model*/
+                exportToExcel: '=?',/*display the export to excel icon*/
+                noRecordsMessage: '=?',/*what message to display when there are no records*/
+                showEdit: '=?',/*show edit column at the start so that it can selected*/
+                filterable: '=?',/*to be able to filter on the column*/
+                showCheck: '=?',/*show check column at the start so that it can be selected*/
+                editRow: '&',/*handler for editing the row*/
+                headerOffset: '=?',/*header offset value*/
+                autoHeightOffset: '=?',/*auto height offset calculation*/
+                getTemplate: '&',/*for getting the templates*/
+                class: '=?',/*add the cell class*/
+                methods: '=?',/*map external methods*/
+                selectRow: '=?',/*select the rows on which you want to do some kind of processing*/
+                values:'=?',/*pass on values from external scope to the appscope*/
+                showFoots:'=?',/*show footers for the columns,*/
+                horScroll:'=?',/*to show or hide horizontal scrollbar */
+                defSort:'=?',/*to sort the grid by this column as soon as the grid loads*/
+                priority:'@',/*sort on the column according to this priority*/
+                offsetRowHeight:'@',/*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
+                rowHeight:'@'/*to give height to the row*/
             },
             link: function cdkTableLink(scope, el, attr, $window) {
                 // description: Set defaults to the attributes
@@ -91,10 +92,11 @@ Array.prototype.findOne = function (vl, c) {
                 scope.horScroll = scope.horScroll === undefined ? true : scope.horScroll;
                 scope.offsetRowHeight = scope.offsetRowHeight === undefined ? 0 : scope.offsetRowHeight;
                 scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
+                scope.rowHeight = scope.rowHeight === undefined ? 21 : scope.rowHeight;
             },
             controller: function cdkTableController($scope, $compile, $window, $attrs, uiGridConstants) {
                 // NOTE: Defaults for the gridOptions
-                $scope.rowHeight = 21;
+                // $scope.rowHeight = 21;
                 // TODO: get the grid api and check for the handle window resize functionality
                 // TODO: watch data to see if data changes and then if it is valid, render the grid
                 $scope.$watch('data', function () {
@@ -102,20 +104,20 @@ Array.prototype.findOne = function (vl, c) {
                         if ($scope.data.length) {
                             var data = $scope.data;
                             data = ProcessDataForCorrectDates(data);
-                            var options = {
+                            console.log($scope.rowHeight);
+                            $scope.gridOptions = {
                                 data: $scope.data,
                                 columnDefs: GetColumnDefs($scope.data),
                                 minRowsToShow: (data.length < 35 ? data.length : 35),
-                                rowHeight: $scope.rowHeight,
+                                rowHeight: parseInt($scope.rowHeight),
                                 minWidth: $scope.minWidth,
                                 enableFiltering: true,
-                                showGridFooter:true,
+                                showGridFooter: true,
                                 showColumnFooter: $scope.showColumnFooter,
                                 columnFooterHeight: 20,
-                                enableHorizontalScrollbar:$scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
-                                rowTemplate: '<div ' + ($scope.showCheck ? 'ng-click="row.entity.selectbit = !row.entity.selectbit"  ng-class="{\'highlightRow\': row.entity.selectbit === true}" ' : '') + ' ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
+                                enableHorizontalScrollbar: $scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
+                                rowTemplate: '<div ' + ($scope.showCheck ? 'data-ng-click="row.entity.selectbit = !row.entity.selectbit"  data-ng-class="{\'highlightRow\': row.entity.selectbit === true}" ' : '') + ' data-ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
                             };
-                            $scope.gridOptions = options;
                             $scope.ShowDefaultGrid();
                         }
                         else { $scope.NoRecords(); }
@@ -135,11 +137,11 @@ Array.prototype.findOne = function (vl, c) {
                   }
                   //console.log(data);
                   return data;
-                }
+                };
                 // TODO: implement a function to show no records message
                 $scope.NoRecords = function NoRecords() {
                     // TODO: show 'No records message'
-                }
+                };
                 // TODO: Show default grid
                 $scope.ShowDefaultGrid = function ShowDefaultGrid() {
                     // TODO: replace
@@ -175,14 +177,14 @@ Array.prototype.findOne = function (vl, c) {
                     var el = $compile('<div class="grid" data-ui-grid="gridOptions" ui-grid-resize-columns data-ui-grid-auto-resize="" style="margin:0 auto; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + ' px; max-height:'+calculatedHeight+'px !important;height:auto !important;max-width:100%;"></div>')($scope);
                     //el.clientHeight = maxHeight - offset;
                     angular.element(elm).append(el);
-                }
+                };
                 // TODO: Find the offset height from the top of the grid and the innerHeight of the document
                 // padding
                 var FindOffsetHeight = function () {
                     var elm = document.getElementById($scope.id);
                     var height = document.body.scrollHeight;
                     return height - elm.offsetTop;
-                }
+                };
                 /**
                 // TODO: Find the height that could be occupied by the records while displaying
                 @description Used to set the height to auto so that any number of records which would occupy more height that the maxHeight
@@ -191,7 +193,7 @@ Array.prototype.findOne = function (vl, c) {
                 var FindDataHeight = function FindDataHeight(){
                   //console.log($scope.offsetRowHeight);
                   return $scope.data.length * $scope.rowHeight + $scope.offsetRowHeight;
-                }
+                };
                 /**
                 @description Build the column definitions for the input data to display in the grid
                 */
@@ -243,7 +245,7 @@ Array.prototype.findOne = function (vl, c) {
                                     var d = data[j];
                                     if ((dataLength) < GetWidth(d[opt.columnID]))
                                         dataLength = GetWidth(d[opt.columnID]);
-                                };
+                                }
                                 var gotWidth = GetWidth(displayName);
                                 width = dataLength > gotWidth ? dataLength : gotWidth;
                             }
@@ -400,7 +402,7 @@ Array.prototype.findOne = function (vl, c) {
                     }
                     //console.log(columnOptions);
                     return columnOptions;
-                }
+                };
                 var GetWidth = function GetWidth(txt) {
                     var el = document.createElement('forWidth');
                     el.style.visibility = 'hidden';
@@ -409,7 +411,7 @@ Array.prototype.findOne = function (vl, c) {
                     var width = el.offsetWidth;
                     document.body.removeChild(el);
                     return width;
-                }
+                };
                 var ChangeWidth = function ChangeWidth(id, width) {
                     angular.element(document.getElementById(id)).css('width', width + 'px');
                 }
