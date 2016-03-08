@@ -24,31 +24,58 @@ Array.prototype.findOne = function (vl, c) {
     return v;
 };
 var weekNames = {
-    0: 'Sun',
-    1: 'Mon',
-    2: 'Tue',
-    3: 'Wed',
-    4: 'Thu',
-    5: 'Fri',
-    6: 'Sat'
+    0: 'SUN',
+    1: 'MON',
+    2: 'TUE',
+    3: 'WED',
+    4: 'THU',
+    5: 'FRI',
+    6: 'SAT'
 };
 String.prototype.name = function () {
     return weekNames[this];
 };
+var timeConst = 60000 * 24 * 60;
 (function () {
-    angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns'])
+    angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.exporter', 'ui.grid.autoResize'])
+        .service('progress', function () {
+            var progressObj = {count: 0};
+            this.GetProgressObj = function () {
+                return progressObj;
+            };
+            this.incCnt = function () {
+                progressObj.count++;
+            };
+            this.decCnt = function () {
+                progressObj.count--;
+            };
+            this.reset = function () {
+                progressObj.count = 0;
+            };
+        })
+        .directive('progressBar', ['progress', function (progress) {
+            return {
+                restrict: 'E',
+                //template: '<div class="progress2-wrap"><div class="progress2"><md-progress-circular md-mode="indeterminate"></md-progress-circular></div></div>',
+                template: '<div class="progress-wrapper">' +
+                '<div class="progress">Loading<span class="dots">...</span></div></div>',
+                controller: function ($scope, progress) {
+                    $scope.progressObj = progress.GetProgressObj();
+                }
+            };
+        }])
         .filter('formatDate', function ($filter) {
             return function (val) {
                 var aDate = val;
                 if (aDate && aDate != 'Invalid Date') {
-                    var dt = $filter('date')(aDate, 'dd/MM/yyyy');
+                    var dt = $filter('date')(aDate, 'MM/dd/yyyy');
                     //console.log(aDate, dt);
                     var month = dt.substring(0, dt.indexOf('/'));
                     var day = dt.substring(dt.indexOf('/') + 1, dt.lastIndexOf('/'));
                     var year = dt.substring(dt.lastIndexOf('/') + 1, dt.length);
                     return (month.length < 2 ? '0' + month : month) + '/' + (day.length < 2 ? '0' + day : day) + '/' + year;
                 } else {
-                    return '';
+                    return aDate;
                 }
             }
         })
@@ -59,49 +86,62 @@ String.prototype.name = function () {
                 return $filter('number')(val, 2);
             }
         })
+
+        .service('storage', function () {
+            this.write = function (key, value) {
+                localStorage.setItem(key, value);
+            };
+            this.read = function (key) {
+                return localStorage.getItem(key);
+            };
+        })
         .directive('cdkTable', function () {
             return {
                 restrict: 'EA',
                 scope: {
-                    id: '@',/*id of the grid*/
-                    data: '=model',/*data as an input*/
-                    options: '=',/*column options which consists the configuration for each column*/
-                    enableFiltering: '=?',/*should the filtering panel be shown*/
-                    saveFilters: '=?',/*should the filters be saved to database*/
-                    maxWidth: '@',/*width of the grid to which it should expand*/
-                    maxHeight: '@',/*height of the grid to which it can expand*/
-                    autoGenerateColumns: '=?',/*Should the columns be auto generated from the input model*/
-                    exportToExcel: '=?',/*display the export to excel icon*/
-                    noRecordsMessage: '=?',/*what message to display when there are no records*/
-                    showEdit: '=?',/*show edit column at the start so that it can selected*/
-                    filterable: '=?',/*to be able to filter on the column*/
-                    showCheck: '=?',/*show check column at the start so that it can be selected*/
-                    editRow: '&',/*handler for editing the row*/
-                    headerOffset: '=?',/*header offset value*/
-                    autoHeightOffset: '=?',/*auto height offset calculation*/
-                    getTemplate: '&',/*for getting the templates*/
-                    class: '=?',/*add the cell class*/
-                    methods: '=?',/*map external methods*/
-                    selectRow: '=?',/*select the rows on which you want to do some kind of processing*/
-                    values: '=?',/*pass on values from external scope to the appscope*/
-                    showFoots: '=?',/*show footers for the columns,*/
-                    horScroll: '=?',/*to show or hide horizontal scrollbar */
-                    defSort: '=?',/*to sort the grid by this column as soon as the grid loads*/
-                    priority: '@',/*sort on the column according to this priority*/
-                    offsetRowHeight: '@',/*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
-                    rowHeight: '@'/*to give height to the row*/
+                    id: '@', /*id of the grid*/
+                    data: '=model', /*data as an input*/
+                    options: '=', /*column options which consists the configuration for each column*/
+                    enableFiltering: '=?', /*should the filtering panel be shown*/
+                    saveFilters: '=?', /*should the filters be saved to database*/
+                    maxWidth: '@', /*width of the grid to which it should expand*/
+                    maxHeight: '@', /*height of the grid to which it can expand*/
+                    autoGenerateColumns: '=?', /*Should the columns be auto generated from the input model*/
+                    export: '=?', /*display the export to excel icon*/
+                    noRecordsMessage: '=?', /*what message to display when there are no records*/
+                    showEdit: '=?', /*show edit column at the start so that it can selected*/
+                    filterable: '=?', /*to be able to filter on the column*/
+                    //showCheck: '=?',/*show check column at the start so that it can be selected*/
+                    editRow: '&', /*handler for editing the row*/
+                    headerOffset: '=?', /*header offset value*/
+                    autoHeightOffset: '=?', /*auto height offset calculation*/
+                    getTemplate: '&', /*for getting the templates*/
+                    storageKeyPrefix: '=?', /*For localstorage, to save the filters and sorts*/
+                    fullRowSelec: '=?', /*to enable full row selection by clicking anywhere on the row*/
+                    class: '=?', /*add the cell class*/
+                    methods: '=?', /*map external methods*/
+                    selectRow: '=?', /*select the rows on which you want to do some kind of processing*/
+                    values: '=?', /*pass on values from external scope to the appscope*/
+                    showFoots: '=?', /*show footers for the columns,*/
+                    horScroll: '=?', /*to show or hide horizontal scrollbar */
+                    defSort: '=?', /*to sort the grid by this column as soon as the grid loads*/
+                    priority: '@', /*sort on the column according to this priority*/
+                    offsetRowHeight: '@', /*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
+                    rowHeight: '@', /*to give height to the row*/
+                    priKey: '@' /*Primary Key for the selection of the row, the checkbox in the first column in every row*/
                 },
-                link: function cdkTableLink(scope, el, attr, $window) {
+                link: function cdkTableLink(scope) {
                     // description: Set defaults to the attributes
                     scope.options = scope.options == undefined ? [] : scope.options;
                     scope.enableFiltering = scope.enableFiltering == undefined ? false : scope.enableFiltering;
                     scope.saveFilters = scope.saveFilters == undefined ? false : scope.saveFilters;
                     scope.autoGenerateColumns = scope.autoGenerateColumns == undefined ? false : scope.autoGenerateColumns;
-                    scope.exportToExcel = scope.exportToExcel == undefined ? false : scope.exportToExcel;
+                    scope.export = scope.export == undefined ? false : scope.export;
                     scope.maxWidth = scope.maxWidth == undefined ? 'AUTO' : scope.maxWidth;
                     scope.maxHeight = scope.maxHeight == undefined ? 'AUTO' : scope.maxHeight;
                     scope.showEdit = scope.showEdit == undefined ? false : scope.showEdit;
-                    scope.showCheck = scope.showCheck == undefined ? false : scope.showCheck;
+                    //scope.storageKeyPrefix = scope.storageKeyPrefix == undefined ? '' : scope.storageKeyPrefix;
+                    //scope.showCheck = scope.showCheck == undefined ? false : scope.showCheck;
                     scope.selectRow = scope.selectRow == undefined ? true : scope.selectRow;
                     scope.filterable = scope.filterable == undefined ? false : scope.filterable;
                     scope.headerOffset = scope.headerOffset == undefined ? 20 : scope.headerOffset;
@@ -113,8 +153,52 @@ String.prototype.name = function () {
                     scope.offsetRowHeight = scope.offsetRowHeight === undefined ? 0 : scope.offsetRowHeight;
                     scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
                     scope.rowHeight = scope.rowHeight === undefined ? 21 : scope.rowHeight;
+                    scope.priKey = scope.priKey === undefined ? '' : scope.priKey;
+                    scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
                 },
-                controller: function cdkTableController($scope, $compile, $window, $attrs, uiGridConstants) {
+                controller: function cdkTableController($scope, $compile, $window, $attrs, $log, $filter, uiGridConstants, storage) {
+                    var storageKey;
+                    var storedValues;
+                    $scope.$watch('storageKeyPrefix', function () {
+                        if ($scope.storageKeyPrefix) {
+                            storageKey = $scope.storageKeyPrefix + $scope.id;
+                        }
+                        storedValues = storage.read(storageKey);
+                        if (!storedValues) {
+                            storedValues = {filters: {}, sorts: {}};
+                        }
+                        try {
+                            storedValues = JSON.parse(storedValues);
+                        } catch (e) {
+                            storedValues = {filters: {}, sorts: {}};
+                        }
+                    });
+                    $scope.GetStoredValue = function (id, type) {
+                        if (storedValues) {
+                            return storedValues[type][id];
+                        }
+                        else
+                            return '';
+                    };
+                    $scope.Store = function Store(type) {
+                        if (type === 'filters') {
+                            //storedValues[type] ? storedValues[type] : {};
+                            angular.forEach($scope.gridApi.grid.columns, function (col) {
+                                if (col.field != "selectionRowHeaderCol")
+                                    storedValues[type][col.field] = col.filter.term;
+                            })
+                        } else if (type === 'sorts') {
+                            //storedValues[type] ? storedValues[type] : {};
+                            angular.forEach($scope.gridApi.grid.columns, function (col) {
+                                if (col.field != "selectionRowHeaderCol")
+                                    storedValues[type][col.field] = {
+                                        direction: col.sort.direction,
+                                        priority: col.sort.priority
+                                    };
+                            })
+                        }
+                        storage.write(storageKey, JSON.stringify(storedValues));
+                    };
                     // NOTE: Defaults for the gridOptions
                     // $scope.rowHeight = 21;
                     // TODO: get the grid api and check for the handle window resize functionality
@@ -135,12 +219,51 @@ String.prototype.name = function () {
                                     showGridFooter: true,
                                     showColumnFooter: $scope.showColumnFooter,
                                     columnFooterHeight: 20,
+                                    exporterMenuPdf: false,
+                                    enableFullRowSelection: $scope.fullRowSelec,
                                     enableHorizontalScrollbar: $scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
-                                    rowTemplate: '<div ' + ($scope.showCheck ? 'data-ng-click="row.entity.selectbit = !row.entity.selectbit"  data-ng-class="{\'highlightRow\': row.entity.selectbit === true}" ' : '') + ' data-ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>'
+                                    rowTemplate: '<div data-ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
+                                    onRegisterApi: function (gridApi) {
+                                        $scope.gridApi = gridApi;
+                                        gridApi.selection.on.rowSelectionChanged($scope, function (row) {
+                                            $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
+                                        });
+                                        gridApi.selection.on.rowSelectionChangedBatch($scope, function (rows) {
+                                            for (var i = 0; i < rows.length; i++) {
+                                                var row = rows[i];
+                                                $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
+                                            }
+                                        });
+                                        gridApi.core.on.filterChanged($scope, function () {
+                                            $scope.Store('filters');
+                                        });
+                                        gridApi.core.on.sortChanged($scope, function () {
+                                            $scope.Store('sorts');
+                                        });
+                                    }
                                 };
-                                $scope.ShowDefaultGrid();
+                                if ($scope.export) {
+                                    $scope.gridOptions.enableGridMenu = true;
+                                    $scope.gridOptions.exporterCsvFilename = "exported.csv";
+                                    $scope.gridOptions.exporterCsvLinkElement = angular.element(document.querySelectorAll(".custom-csv-link-location"));
+                                } else {
+                                    $scope.gridOptions.enableGridMenu = false;
+                                }
+                                $scope.exporterFieldCallback = function exporterFieldCallback(grid, row, col, value) {
+                                    var field = col.field;
+                                    var option = $scope.options.findOne(field, 'columnID');
+                                    value = option.filter ? $filter(option.filter)(value) : value;
+                                    return value;
+                                };
+                                $scope.gridOptions.exporterFieldCallback = $scope.methods.exporterFieldCallback ? $scope.methods.exporterFieldCallback : $scope.exporterFieldCallback;
+                                $scope.gridOptions.exporterHeaderFilter = $scope.methods.exporterHeaderFilter ? $scope.methods.exporterHeaderFilter : exporterHeaderFilter;
+                                var exporterHeaderFilter = function exporterHeaderFilter(displayName) {
+                                    return displayName;
+                                }
                             }
-                            else { $scope.NoRecords(); }
+                            else {
+                                $scope.NoRecords();
+                            }
                         }
                     });
                     var ProcessDataForCorrectDates = function ProcessDataForCorrectDates(data) {
@@ -155,7 +278,6 @@ String.prototype.name = function () {
                                 }
                             }
                         }
-                        //console.log(data);
                         return data;
                     };
                     // TODO: implement a function to show no records message
@@ -166,18 +288,20 @@ String.prototype.name = function () {
                     $scope.ShowDefaultGrid = function ShowDefaultGrid() {
                         // TODO: replace
                         var elm = document.getElementById($scope.id);
+
                         try {
                             elm.removeChild(elm.children[0]);
-                        } catch (e) { }
+                        } catch (e) {
+                        }
                         //console.log($scope.maxHeight, $scope.autoHeightOffset, FindDataHeight(), FindOffsetHeight());
                         var offset = $scope.autoHeightOffset ? $scope.autoHeightOffset : 0;
-                        var dataHeight = FindDataHeight();
-                        var gridMaxHeight = FindOffsetHeight();
-                        var maxHeight = 0;
-                        maxHeight = $scope.maxHeight != 'AUTO' ? $scope.maxHeight : (maxHeight < FindDataHeight() ? maxHeight : FindDataHeight());
+                        var dataHeight = FindDataHeight() + 80 + (parseInt($scope.offsetRowHeight) ? parseInt($scope.offsetRowHeight) : 0);
+                        var gridMaxHeight = FindOffsetHeight() - offset;
+                        //var maxHeight = 0;
+                        //maxHeight = $scope.maxHeight != 'AUTO' ? $scope.maxHeight : (maxHeight < FindDataHeight() ? maxHeight : FindDataHeight());
                         var calculatedHeight;
                         //If maxHeight is already given which means not auto
-                        if (parseInt($scope.maxHeight) > 0) {
+                        if ($scope.maxHeight && parseInt($scope.maxHeight) > 0) {
                             calculatedHeight = parseInt($scope.maxHeight);
                         }
                         //maxHeight should be auto
@@ -192,12 +316,27 @@ String.prototype.name = function () {
                             }
                         }
                         //Use the offset height
-                        calculatedHeight = calculatedHeight - offset;
+                        //calculatedHeight = calculatedHeight - offset;
                         //console.log(calculatedHeight);
-                        var el = $compile('<div class="grid" data-ui-grid="gridOptions" ui-grid-resize-columns data-ui-grid-auto-resize="" style="margin:0 auto; width:' + ($scope.gridWidth + 18 + ($scope.selectRow ? 35 : 0)) + ' px; max-height:' + calculatedHeight + 'px !important;height:auto !important;max-width:100%;"></div>')($scope);
-                        //el.clientHeight = maxHeight - offset;
-                        angular.element(elm).append(el);
+                        if ($scope.data && $scope.data.length) {
+                            var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid="gridOptions" ' +
+                                'ui-grid-auto-resize="" ui-grid-selection="" ui-grid-exporter="" ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
+                                'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
+                            //el.clientHeight = maxHeight - offset;
+                            angular.element(elm).append(el);
+                        }
                     };
+                    /*Function to clear all the filters on the columns*/
+                    //$scope.ClearAllFilters = function ClearAllFilters() {
+                    //    angular.forEach($scope.gridApi.grid.columns, function (col) {
+                    //        col.filter.term = '';
+                    //    });
+                    //    angular.forEach($scope.gridApi.grid.columns, function (col) {
+                    //        //$log.log(col);
+                    //        storedValues.filters[col.field] = col.filter.term;
+                    //    })
+                    //    storage.write(storageKey, JSON.stringify(storedValues));
+                    //}
                     // TODO: Find the offset height from the top of the grid and the innerHeight of the document
                     // padding
                     var FindOffsetHeight = function () {
@@ -211,20 +350,20 @@ String.prototype.name = function () {
                      there in the screen, it would set the height to the minimum of these
                      */
                     var FindDataHeight = function FindDataHeight() {
-                        //console.log($scope.offsetRowHeight);
-                        return $scope.data.length * $scope.rowHeight + $scope.offsetRowHeight;
+                        return $scope.data.length * $scope.rowHeight;
                     };
                     /**
                      @description Build the column definitions for the input data to display in the grid
                      */
                     var GetColumnDefs = function (data) {
-                        var dataRow = data[0];
+                        //var dataRow = data[0];
                         var columnDefs = [];
                         var columnOptions = BuildColumnOptions(data);
                         //console.log(columnOptions);
                         var headerOffset = $scope.headerOffset;
                         var totalWidth = 0;
                         var errorWidth = 0;
+                        $scope.gridWidth = 0;
                         for (var i = 0; i < columnOptions.length; i++) {
                             var opt = columnOptions[i];
                             var cellTemp = '';
@@ -233,8 +372,8 @@ String.prototype.name = function () {
                             var showFoot = false;
                             if (opt.columnID == 'EDIT')
                                 cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.editRow({value:row.entity.Request})">Edit</div>';
-                            if (opt.columnID == 'CHECK')
-                                cellTemp = '<div class="ui-grid-cell-contents"><input type="checkbox" data-ng-click="row.entity.selectbit = !row.entity.selectbit" data-ng-model="row.entity.selectbit"/></div>';
+                            //if (opt.columnID == 'CHECK')
+                            //    cellTemp = '<div class="ui-grid-cell-contents"><input type="checkbox" data-ng-click="row.entity.isSelected = !row.entity.isSelected" data-ng-model="row.entity.isSelected"/></div>';
                             if (opt.template) {
                                 cellTemp = $scope.getTemplate({ value: opt.template });
                             }
@@ -284,6 +423,7 @@ String.prototype.name = function () {
                             o.field = opt.columnID;
                             o.displayName = displayName;
                             o.width = width + headerOffset;
+                            $scope.gridWidth += o.width;
                             o.cellFilter = opt.filter ? opt.filter : '';
                             o.cellTemplate = cellTemp ? cellTemp : '';
                             o.enableHiding = false;
@@ -296,6 +436,14 @@ String.prototype.name = function () {
                             o.footerCellTemplate = footTemp ? footTemp : '';
                             o.headerCellTemplate = headTemp ? headTemp : '';
                             o.showColumnFooter = showFoot;
+                            //o.sort = $scope.GetStoredValue(o.field, 'sorts');
+                            o.filter = {term: $scope.GetStoredValue(o.field, 'filters')};
+                            o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
+                                'colFilter.disableCancelFilterButton === true}"><input type="text" class="ui-grid-filter-input" ' +
+                                'ng-model="colFilter.term" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
+                                'ng-click="removeFilter(colFilter, $index)" ng-if="!colFilter.disableCancelFilterButton" data-ng-disabled="colFilter.term === undefined || colFilter.term === null || ' +
+                                'colFilter.term === \'\'" ng-show="colFilter.term !== undefined &amp;&amp; colFilter.term !== null &amp;&amp; colFilter.term !== \'\'"><div>' +
+                                '<i class="ui-grid-icon-cancel" ui-grid-one-bind-aria-label="aria.removeFilter" aria-label="Remove Filter">&nbsp;</i></div></div></div>';
                             o.sort = sort;
 
                             o.type = opt.type ? opt.type : '';
@@ -317,15 +465,36 @@ String.prototype.name = function () {
                                         else return 0;
                                     }
                                 }
+                                else if (o.type === 'date') {
+                                    o.sortingAlgorithm = function (a, b) {
+                                        //if (a === null && b !== null)
+                                        //    return -1;
+                                        //else if (a != null && b === null)
+                                        //    return 1;
+                                        a = new Date(a);
+                                        b = new Date(b);
+                                        if (a === null && b === null)
+                                            return 0;
+                                        else if (a > b)
+                                            return 1;
+                                        else if (a < b)
+                                            return -1;
+                                        else if (a === b)
+                                            return 0;
+                                        else return 0;
+                                    }
+                                }
                             }
                             columnDefs.push(o);
                             if (opt.visible)
                                 totalWidth += (width + headerOffset);
-                        };
-                        $scope.gridWidth = totalWidth + 30 + errorWidth;
+                        }
+
+                        $scope.ShowDefaultGrid();
+                        //$scope.gridWidth = totalWidth + 30 + errorWidth;
                         //console.log(columnDefs);
                         return columnDefs;
-                    }
+                    };
                     /**
                      @description the forming of the column definitions depends on the autoGenerateColumns key
                      if the key is true, then it has to read data and form definitions taking all the columns into consideration
@@ -355,17 +524,17 @@ String.prototype.name = function () {
                                 visible: true
                             })
                         }
-                        // TODO: Add Check Column Definition
-                        if ($scope.showCheck) {
-                            columnOptions.push({
-                                columnID: 'CHECK',
-                                columnName: '',
-                                width: '1',
-                                enableSorting: false,
-                                filterable: false,
-                                visible: true
-                            })
-                        }
+                        //// TODO: Add Check Column Definition
+                        //if ($scope.showCheck) {
+                        //    columnOptions.push({
+                        //        columnID: 'CHECK',
+                        //        columnName: '',
+                        //        width: '1',
+                        //        enableSorting: false,
+                        //        filterable: false,
+                        //        visible: true
+                        //    })
+                        //}
                         var keys;
                         if ($scope.autoGenerateColumns) {
                             //Read data for keys
@@ -383,7 +552,7 @@ String.prototype.name = function () {
                             LoadColumnOption(keys, $scope.options, columnOptions);
                         }
                         return columnOptions;
-                    }
+                    };
                     /**
                      @description Default values for the paramters that need to be filled when no value is given in the options
                      @function Default values
@@ -409,6 +578,7 @@ String.prototype.name = function () {
                             option.width = colOpts.width ? colOpts.width : (key.width ? key.width : 'AUTO');
                             option.enableSorting = colOpts.sortable != undefined ? colOpts.sortable : true;
                             option.filter = colOpts.filter ? colOpts.filter : '';
+                            option.filterCellFiltered = true;
                             option.visible = !colOpts.hide;
                             option.class = colOpts.class ? colOpts.class : '';
                             option.filterable = colOpts.filterable != undefined ? colOpts.filterable : false;
@@ -432,9 +602,9 @@ String.prototype.name = function () {
                         document.body.removeChild(el);
                         return width;
                     };
-                    var ChangeWidth = function ChangeWidth(id, width) {
-                        angular.element(document.getElementById(id)).css('width', width + 'px');
-                    }
+                    //var ChangeWidth = function ChangeWidth(id, width) {
+                    //    angular.element(document.getElementById(id)).css('width', width + 'px');
+                    //}
                 }
             }
         })
@@ -456,6 +626,104 @@ String.prototype.name = function () {
                     // TODO: Write the functionality for the multi select
                     // TODO:
                 }
+            }
+        })
+        .directive('cdkCheck', function () {
+            return {
+                // $parsers/$formatters live on the
+                // ngModel controller, so we need this!
+                restrict: 'A',
+                require: 'ngModel',
+                link: function (scope, elem, attrs, ngModel) {
+                    //ngModel.$parsers.push(function toModel(input) {
+                    //    // do something to format user input
+                    //    // to be more "computer-friendly"
+                    //    return modifiedInput;
+                    //});
+
+                    ngModel.$formatters.push(function toView(input) {
+                        // do something to format user input
+                        // to be more "human-friendly"
+                        var modifiedInput;
+                        if (input.toString().toUpperCase() === 'YES')
+                            modifiedInput = true;
+                        else if (input.toString().toUpperCase() === 'NO')
+                            modifiedInput = false;
+                        else modifiedInput = input;
+                        return modifiedInput;
+                    });
+                }
+            };
+        })
+        .directive('cdkWeekPicker', function () {
+            return {
+                restrict: 'E',
+                scope: {
+                    currentWeek: "=?"
+                },
+                link: function (scope) {
+                    scope.openPicker = scope.open;
+                },
+                controller: function ($scope, $filter) {
+                    $scope.year = new Date().getFullYear();
+                    $scope.show = false;
+                    /**
+                     * @description Start from date 1 of january, scan through the dates
+                     * */
+                    $scope.FormWeeksCollectionInYear = function FormWeeksCollectionInYear(year) {
+                        var d = new Date('1/1/' + year);
+                        var newYear = year;
+                        var obj = [];
+                        var days = [];
+                        var newMonth = 0;
+                        var month = 0;
+                        while (newYear == year) {
+                            newYear = parseInt(d.getFullYear());
+                            var day = d.getDay();
+                            newMonth = d.getMonth();
+                            if (newMonth == month) {
+                                if (day === 6) {
+                                    days.push(d.getDate());
+                                }
+                            }
+                            else {
+                                obj.push({
+                                    month: $filter('date')(new Date(d.getTime() - timeConst), 'MMM'),
+                                    days: days
+                                });
+                                days = [];
+                                month = newMonth;
+                            }
+                            d = new Date(d.setDate(d.getDate() + 1));
+                        }
+                        return obj;
+                    };
+                    $scope.months = $scope.FormWeeksCollectionInYear($scope.year);
+                    $scope.previousYear = function () {
+                        $scope.year = $scope.year - 1;
+                        $scope.months = $scope.FormWeeksCollectionInYear($scope.year);
+                    };
+                    $scope.nextYear = function () {
+                        $scope.year = $scope.year + 1;
+                        $scope.months = $scope.FormWeeksCollectionInYear($scope.year);
+                    };
+                    $scope.SelectWeek = function (day, month, year) {
+                        $scope.currentWeek = new Date(day + '-' + month + '-' + year);
+                        $scope.show = false;
+                    };
+                },
+                template: '<div class="week-picker-wrap"><div class="btn btn-default" data-ng-click="show = !show">Pick Week</div><div data-ng-show="show" class="week-picker">' +
+                '<div class="row">' +
+                '<span class="btn btn-default col-sm-2" data-ng-click="previousYear()"><</span>' +
+                '<span class="btn btn-default col-sm-6">{{year}}</span>' +
+                '<span data-ng-click="nextYear()" class="btn btn-default col-sm-2">></span>' +
+                '<span class="btn btn-danger col-sm-2" data-ng-click="show = false">X</span>' +
+                '</div>' +
+                '<div class="row week" data-ng-repeat="month in months">' +
+                '<span class="col-sm-2 btn btn-default">{{month.month}}</span>' +
+                '<span class="col-sm-2 btn btn-default" data-ng-repeat="day in month.days" data-ng-click="SelectWeek(day, month.month, year)">{{day}}</span>' +
+                '</div>' +
+                '</div></div>'
             }
         })
 })(angular);

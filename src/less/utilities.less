@@ -21,3 +21,61 @@
 .hoverBg:hover{
   background-color:#FFFF81!important;
 }
+
+cdk-table {
+  height: auto;
+}
+
+.grid {
+  font-family: 'RobotoDraft';
+  font-size: 0.9em;
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+  input[type="checkbox"] {
+    height: 20px;
+    vertical-align: middle;
+    width: 27px;
+    margin-top: 1px;
+  }
+  * {
+    outline: none;
+  }
+}
+
+.grid-wrapper {
+  z-index: -1;
+}
+
+.cdk-table-ribbon {
+  position: relative;
+  height: 30px;
+  left: 0;
+  width: auto;
+}
+
+.tab-ribbon {
+  height: 30px;
+  width: 100%;
+  position: relative;
+  top: 0;
+}
+
+.week-picker {
+  width: 300px;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+  background-color: #EEE;
+  border: 1px solid #DDD;
+  box-shadow: 0 0 30px -6px;
+  padding: 5px 2px;
+}
+
+.week-picker-wrap {
+  position: relative;
+}
