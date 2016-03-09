@@ -1,18 +1,19 @@
 {
   "name": "cdk-utilities",
   "version": "1.0.0",
-  "description": "A collection of utilities implemented on angular framework",
+  "description": "A collection of easy to use utilities implemented on angular framework",
   "author": "CDK Global Div IT",
   "contributors": [
     {
       "name": "David Enoch",
-      "email": "davidenochraj.kummari@cdk.com"
+      "email": "davidenoch@outlook.com"
     }
   ],
   "repository": "https://github.com/davidenochk/cdk-utilities",
   "dependencies": {
     "bootstrap": "^3.3.6",
     "bower": "^1.7.0",
+    "git": "^0.1.5",
     "gulp": "^3.9.0",
     "gulp-less": "^3.0.5",
     "gulp-minify-css": "^1.2.2",

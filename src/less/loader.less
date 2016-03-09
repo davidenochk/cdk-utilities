@@ -1,0 +1,96 @@
+.progress-wrapper {
+  position: fixed;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 99999;
+  text-align: center;
+}
+
+.progress-wrapper .progress {
+  font-weight: 200;
+  position: relative;
+  top: 40%;
+  color: #fff;
+  margin: 0 auto;
+  width: 95px;
+  height: auto;
+  display: inline-block;
+  text-align: left;
+  background-color: #333;
+  padding: 10px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  border: 1px solid #DDD;
+}
+
+.progress-wrapper .dots {
+  overflow: hidden;
+  text-align: left;
+  font-weight: 800;
+  margin-left: 5px;
+  -webkit-animation: loader 2s infinite; /* Safari 4+ */
+  -moz-animation: loader 2s infinite; /* Fx 5+ */
+  -o-animation: loader 2s infinite; /* Opera 12+ */
+  animation: loader 2s infinite; /* IE 10+, Fx 29+ */
+}
+
+@-webkit-keyframes loader {
+  0% {
+    letter-spacing: 1px;
+  }
+
+  50% {
+    letter-spacing: 5px;
+  }
+
+  100% {
+    letter-spacing: 1px;
+  }
+}
+
+@-moz-keyframes loader {
+  0% {
+    letter-spacing: 1px;
+  }
+
+  50% {
+    letter-spacing: 5px;
+  }
+
+  100% {
+    letter-spacing: 1px;
+  }
+}
+
+@-o-keyframes loader {
+  0% {
+    letter-spacing: 1px;
+  }
+
+  50% {
+    letter-spacing: 5px;
+  }
+
+  100% {
+    letter-spacing: 1px;
+  }
+}
+
+@keyframes loader {
+  0% {
+    letter-spacing: 1px;
+  }
+
+  50% {
+    letter-spacing: 5px;
+  }
+
+  100% {
+    letter-spacing: 1px;
+  }
+}

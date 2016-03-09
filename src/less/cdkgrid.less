@@ -1,0 +1,119 @@
+.highlightRow, .highlightRow td {
+  background-color: @highlight_bg_color;
+}
+
+/*CDK grid styling*/
+.CDK_grid {
+  font-size: 1em !important;
+
+  md-checkbox {
+    margin: 2px;
+  }
+
+  tr {
+    padding: 0;
+  }
+
+  thead tr th, tbody tr th {
+    border: 1px solid #4c6477;
+    text-align: left;
+    font-size: 0.9em;
+    min-height: 24px;
+    vertical-align: middle;
+    position: relative;
+    background-color: @cdk-salesforceColor !important;
+    color: #fff;
+    padding: 3px 5px;
+    font-weight: 400;
+
+    span {
+      line-height: 28px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    span:hover {
+      text-decoration: underline;
+    }
+
+    select {
+      float: right;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    a {
+      color: #EEE !important;
+      padding: 3px 1px;
+      cursor: pointer;
+    }
+  }
+
+  tr td {
+    border: 1px solid #DDD;
+    color: #333;
+    text-align: left;
+    font-weight: normal;
+    font-size: 0.9em;
+    padding: 1px 5px;
+    white-space: nowrap;
+
+    div {
+      max-width: 100px;
+      -ms-text-overflow: ellipsis;
+      -o-text-overflow: ellipsis;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+
+  td label {
+    font-weight: normal;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #fff;
+  }
+
+  tbody tr:nth-child(odd) {
+    background-color: #EEE;
+  }
+
+  thead input {
+    float: left;
+  }
+}
+
+/*CDK grid with hover for clicks*/
+.CDK_grid_hover {
+  td, thead tr th {
+    cursor: pointer;
+  }
+
+  tbody tr:hover, tr:hover {
+    background-color: #ffff99;
+  }
+
+  thead tr:hover {
+    background-color: transparent;
+  }
+}
+
+/*CDK grid styling with transparent background*/
+.CDK_grid_trans {
+  tbody tr:nth-child(odd), td, tr {
+    background-color: transparent;
+  }
+}
+
+.hover_bg tbody tr {
+
+  &:hover {
+    background-color: @highlight_bg_color;
+
+    td {
+      background-color: transparent;
+    }
+  }
+}
