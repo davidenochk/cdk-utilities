@@ -1,5 +1,5 @@
 .ui-grid-top-panel, .ui-grid-top-panel-background {
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#28A8D1', endColorstr='#28A8D1', GradientType=0)
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#82C600', endColorstr='#82C600', GradientType=0)
 }
 
 #ui-grid-twbs #ui-grid-twbs .btn-group-vertical > .btn-group:after, #ui-grid-twbs #ui-grid-twbs .btn-toolbar:after, #ui-grid-twbs #ui-grid-twbs .form-horizontal .form-group:after, .ui-grid-clearfix:after, .ui-grid-footer-canvas:after, .ui-grid-header-canvas:after {
@@ -81,11 +81,11 @@
 }
 
 .ui-grid-top-panel-background {
-    background: #28A8D1;
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #28A8D1), color-stop(1, #28A8D1));
-    background: -ms-linear-gradient(bottom, #28A8D1, #28A8D1);
-    background: -moz-linear-gradient(center bottom, #28A8D1 0, #28A8D1 100%);
-    background: -o-linear-gradient(#28A8D1, #28A8D1)
+    background: #82C600;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #82C600), color-stop(1, #82C600));
+    background: -ms-linear-gradient(bottom, #82C600, #82C600);
+    background: -moz-linear-gradient(center bottom, #82C600 0, #82C600 100%);
+    background: -o-linear-gradient(#82C600, #82C600)
 }
 
 .ui-grid-header {
@@ -97,11 +97,11 @@
     position: relative;
     overflow: hidden;
     font-weight: 700;
-    background: #28A8D1;
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #28A8D1), color-stop(1, #28A8D1));
-    background: -ms-linear-gradient(bottom, #28A8D1, #28A8D1);
-    background: -moz-linear-gradient(center bottom, #28A8D1 0, #28A8D1 100%);
-    background: -o-linear-gradient(#28A8D1, #28A8D1);
+    background: #82C600;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #82C600), color-stop(1, #82C600));
+    background: -ms-linear-gradient(bottom, #82C600, #82C600);
+    background: -moz-linear-gradient(center bottom, #82C600 0, #82C600 100%);
+    background: -o-linear-gradient(#82C600, #82C600);
     -moz-border-radius-topright: -1px;
     -moz-border-radius-bottomright: 0;
     -moz-border-radius-bottomleft: 0;
@@ -161,7 +161,6 @@
 
 .ui-grid-column-menu-button {
     position: absolute;
-    right: 1px;
     top: 0
 }
 
@@ -334,8 +333,8 @@ select.ui-grid-filter-select:hover {
 }
 
 .ui-grid-footer-panel-background, .ui-grid-no-row-overlay {
-    background: #28A8D1;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#28A8D1', endColorstr='#28A8D1', GradientType=0)
+    background: #82C600;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#82C600', endColorstr='#82C600', GradientType=0)
 }
 
 .ui-grid-row:last-child .ui-grid-cell {
@@ -350,10 +349,10 @@ select.ui-grid-filter-select:hover {
     left: 0;
     right: 0;
     margin: 10%;
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #28A8D1), color-stop(1, #28A8D1));
-    background: -ms-linear-gradient(bottom, #28A8D1, #28A8D1);
-    background: -moz-linear-gradient(center bottom, #28A8D1 0, #28A8D1 100%);
-    background: -o-linear-gradient(#28A8D1, #28A8D1);
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #82C600), color-stop(1, #82C600));
+    background: -ms-linear-gradient(bottom, #82C600, #82C600);
+    background: -moz-linear-gradient(center bottom, #82C600 0, #82C600 100%);
+    background: -o-linear-gradient(#82C600, #82C600);
     -moz-background-clip: padding-box;
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
@@ -411,10 +410,10 @@ select.ui-grid-filter-select:hover {
 }
 
 .ui-grid-footer-panel-background {
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #28A8D1), color-stop(1, #28A8D1));
-    background: -ms-linear-gradient(bottom, #28A8D1, #28A8D1);
-    background: -moz-linear-gradient(center bottom, #28A8D1 0, #28A8D1 100%);
-    background: -o-linear-gradient(#28A8D1, #28A8D1)
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #82C600), color-stop(1, #82C600));
+    background: -ms-linear-gradient(bottom, #82C600, #82C600);
+    background: -moz-linear-gradient(center bottom, #82C600 0, #82C600 100%);
+    background: -o-linear-gradient(#82C600, #82C600)
 }
 
 .ui-grid-footer-panel {
@@ -423,12 +422,12 @@ select.ui-grid-filter-select:hover {
     border-top: 1px solid #d4d4d4;
     overflow: hidden;
     font-weight: 700;
-    background: #28A8D1;
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #28A8D1), color-stop(1, #28A8D1));
-    background: -ms-linear-gradient(bottom, #28A8D1, #28A8D1);
-    background: -moz-linear-gradient(center bottom, #28A8D1 0, #28A8D1 100%);
-    background: -o-linear-gradient(#28A8D1, #28A8D1);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#28A8D1', endColorstr='#28A8D1', GradientType=0);
+    background: #82C600;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #82C600), color-stop(1, #82C600));
+    background: -ms-linear-gradient(bottom, #82C600, #82C600);
+    background: -moz-linear-gradient(center bottom, #82C600 0, #82C600 100%);
+    background: -o-linear-gradient(#82C600, #82C600);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#82C600', endColorstr='#82C600', GradientType=0);
     -moz-border-radius-topright: -1px;
     -moz-border-radius-bottomright: 0;
     -moz-border-radius-bottomleft: 0;
@@ -512,9 +511,8 @@ input[type=text].ui-grid-filter-input:hover {
 .ui-grid-menu-button {
     right: 0;
     top: 0;
-    background: #28A8D1;
+    background: #82C600;
     border: 1px solid #d4d4d4;
-    height: 31px;
     font-weight: 400
 }
 
@@ -569,9 +567,7 @@ input[type=text].ui-grid-filter-input:hover {
     padding: 1px;
     font-size: 10px;
     line-height: 1;
-    border-radius: 2px;
-    color: transparent;
-    background-color: transparent
+    border-radius: 2px
 }
 
 .ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button.active.focus, .ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button.active:focus, .ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button.focus, .ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button:active.focus, .ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button:active:focus, .ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button:focus {
@@ -637,7 +633,6 @@ input[type=text].ui-grid-filter-input:hover {
     min-width: 100%;
     padding: 8px;
     text-align: left;
-    background: 0 0;
     border: none
 }
 
@@ -741,7 +736,7 @@ input[type=text].ui-grid-filter-input:hover {
     position: absolute;
     left: 0;
     right: auto;
-    background: #28A8D1;
+    background: #82C600;
     border: 1px solid #d4d4d4;
     cursor: pointer;
     min-height: 27px;
@@ -985,19 +980,51 @@ input[type=text].ui-grid-filter-input {
     opacity: 1
 }
 
-.highlightRow, .hoverBg:hover, .ui-grid-row:hover .ui-grid-cell {
-    background-color: #FFFF81 !important
-}
-
 [class*=" ui-grid-icon"]:before, [class^=ui-grid-icon]:before {
     color: #000;
     margin-right: .2em;
     margin-left: .2em
 }
 
+.ui-grid-row:hover .ui-grid-cell {
+    background-color: #FFFF81 !important
+}
+
 div.ui-grid-cell input[type=checkbox] {
     margin: 0 !important;
     width: auto
+}
+
+span[id$=sortdir-text] {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    font-size: 12px;
+    width: 16px;
+    height: 13px
+}
+
+.ui-grid-column-menu-button {
+    right: 0;
+    font-size: 12px;
+    background-color: #82C600;
+    height: 13px;
+    width: 16px
+}
+
+.ui-grid-menu .ui-grid-menu-inner ul li button {
+    background: 0 0 !important;
+    color: #000
+}
+
+.ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button {
+    background-color: transparent !important;
+    color: #000
+}
+
+.ui-grid-menu-button {
+    height: 22px;
+    width: 20px
 }
 
 .hyperlink {
@@ -1020,6 +1047,10 @@ div.ui-grid-cell input[type=checkbox] {
 
 .center, .progress-wrapper {
     text-align: center
+}
+
+.highlightRow, .hoverBg:hover {
+    background-color: #FFFF81 !important
 }
 
 cdk-table {
@@ -1274,8 +1305,8 @@ div.ui-grid-cell input.ng-invalid {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    color: #28A8D1;
-    background-color: #28A8D1
+    color: #82C600;
+    background-color: #82C600
 }
 
 .ui-grid-pager-control input[disabled], .ui-grid-pager-row-count-picker select[disabled], fieldset[disabled] .ui-grid-pager-control input, fieldset[disabled] .ui-grid-pager-row-count-picker select {
@@ -1318,20 +1349,20 @@ a.ui-grid-pager-control button.disabled, fieldset[disabled] a.ui-grid-pager-cont
 }
 
 .ui-grid-pager-control button.focus, .ui-grid-pager-control button:focus {
-    color: #28A8D1;
-    background-color: #2086a6;
+    color: #82C600;
+    background-color: #619300;
     border-color: #8c8c8c
 }
 
 .open > .dropdown-toggle.ui-grid-pager-control button, .ui-grid-pager-control button.active, .ui-grid-pager-control button:active, .ui-grid-pager-control button:hover {
-    color: #28A8D1;
-    background-color: #2086a6;
+    color: #82C600;
+    background-color: #619300;
     border-color: #adadad
 }
 
 .open > .dropdown-toggle.ui-grid-pager-control button.focus, .open > .dropdown-toggle.ui-grid-pager-control button:focus, .open > .dropdown-toggle.ui-grid-pager-control button:hover, .ui-grid-pager-control button.active.focus, .ui-grid-pager-control button.active:focus, .ui-grid-pager-control button.active:hover, .ui-grid-pager-control button:active.focus, .ui-grid-pager-control button:active:focus, .ui-grid-pager-control button:active:hover {
-    color: #28A8D1;
-    background-color: #1a6e88;
+    color: #82C600;
+    background-color: #496f00;
     border-color: #8c8c8c
 }
 
@@ -1340,13 +1371,13 @@ a.ui-grid-pager-control button.disabled, fieldset[disabled] a.ui-grid-pager-cont
 }
 
 .ui-grid-pager-control button.disabled.focus, .ui-grid-pager-control button.disabled:focus, .ui-grid-pager-control button.disabled:hover, .ui-grid-pager-control button[disabled].focus, .ui-grid-pager-control button[disabled]:focus, .ui-grid-pager-control button[disabled]:hover, fieldset[disabled] .ui-grid-pager-control button.focus, fieldset[disabled] .ui-grid-pager-control button:focus, fieldset[disabled] .ui-grid-pager-control button:hover {
-    background-color: #28A8D1;
+    background-color: #82C600;
     border-color: #ccc
 }
 
 .ui-grid-pager-control button .badge {
-    color: #28A8D1;
-    background-color: #28A8D1
+    color: #82C600;
+    background-color: #82C600
 }
 
 .ui-grid-pager-control input {

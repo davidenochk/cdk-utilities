@@ -36,6 +36,12 @@ String.prototype.name = function () {
     return weekNames[this];
 };
 var timeConst = 60000 * 24 * 60;
+var NVL = function NVL(val, replc) {
+    if (val === null || val === undefined || val === '')
+        return replc != undefined ? replc : '';
+    else
+        return val;
+};
 (function () {
     angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.exporter', 'ui.grid.autoResize'])
         .service('progress', function () {
@@ -118,6 +124,7 @@ var timeConst = 60000 * 24 * 60;
                     getTemplate: '&', /*for getting the templates*/
                     storageKeyPrefix: '=?', /*For localstorage, to save the filters and sorts*/
                     fullRowSelec: '=?', /*to enable full row selection by clicking anywhere on the row*/
+                    showColMenu: '=?', /*to show or hide the column menus*/
                     class: '=?', /*add the cell class*/
                     methods: '=?', /*map external methods*/
                     selectRow: '=?', /*select the rows on which you want to do some kind of processing*/
@@ -155,49 +162,80 @@ var timeConst = 60000 * 24 * 60;
                     scope.rowHeight = scope.rowHeight === undefined ? 21 : scope.rowHeight;
                     scope.priKey = scope.priKey === undefined ? '' : scope.priKey;
                     scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
+                    scope.showColMenu = scope.showColMenu === undefined ? true : scope.showColMenu;
                 },
                 controller: function cdkTableController($scope, $compile, $window, $attrs, $log, $filter, uiGridConstants, storage) {
-                    var storageKey;
-                    var storedValues;
                     $scope.$watch('storageKeyPrefix', function () {
                         if ($scope.storageKeyPrefix) {
-                            storageKey = $scope.storageKeyPrefix + $scope.id;
+                            $scope.storageKey = $scope.storageKeyPrefix + $scope.id;
                         }
-                        storedValues = storage.read(storageKey);
-                        if (!storedValues) {
-                            storedValues = {filters: {}, sorts: {}};
-                        }
-                        try {
-                            storedValues = JSON.parse(storedValues);
-                        } catch (e) {
-                            storedValues = {filters: {}, sorts: {}};
-                        }
+                        //if (!storedValues) {
+                        //    storedValues = { filters: {}, sorts: {} };
+                        //}
+                        //try {
+                        //    storedValues = JSON.parse(storedValues);
+                        //} catch (e) {
+                        //    storedValues = { filters: {}, sorts: {} };
+                        //}
                     });
-                    $scope.GetStoredValue = function (id, type) {
-                        if (storedValues) {
-                            return storedValues[type][id];
-                        }
-                        else
-                            return '';
+                    $scope.GetStoredValue = function () {
+                        return JSON.parse(storage.read($scope.storageKey));
                     };
-                    $scope.Store = function Store(type) {
-                        if (type === 'filters') {
-                            //storedValues[type] ? storedValues[type] : {};
-                            angular.forEach($scope.gridApi.grid.columns, function (col) {
-                                if (col.field != "selectionRowHeaderCol")
-                                    storedValues[type][col.field] = col.filter.term;
-                            })
-                        } else if (type === 'sorts') {
-                            //storedValues[type] ? storedValues[type] : {};
-                            angular.forEach($scope.gridApi.grid.columns, function (col) {
-                                if (col.field != "selectionRowHeaderCol")
-                                    storedValues[type][col.field] = {
-                                        direction: col.sort.direction,
-                                        priority: col.sort.priority
-                                    };
-                            })
+                    $scope.Store = function Store(scope) {
+                        //console.log($scope.gridApi.grid.columns);
+                        //if (type === 'filters') {
+                        //    //storedValues[type] ? storedValues[type] : {};
+                        //    angular.forEach($scope.gridApi.grid.columns, function (col) {
+                        //        if (col.field != "selectionRowHeaderCol")
+                        //            storedValues[type][col.field] = col.filter.term;
+                        //    })
+                        //} else if (type === 'sorts') {
+                        //    //storedValues[type] ? storedValues[type] : {};
+                        //    angular.forEach($scope.gridApi.grid.columns, function (col) {
+                        //        if (col.field != "selectionRowHeaderCol")
+                        //            storedValues[type][col.field] = {
+                        //                direction: col.sort.direction,
+                        //                priority: col.sort.priority
+                        //            };
+                        //    })
+                        //}
+                        if (!scope) {
+                            scope = $scope;
                         }
-                        storage.write(storageKey, JSON.stringify(storedValues));
+                        var columnDefs = [];
+                        //cellClass, cellFilter, cellTemplate, colDef, displayName, drawnWidth, enableFiltering, enableSorting, field, filter, filterCellFiltered, filterHeadTemplate,
+                        //headerCellClass, headerCellFilter, headerCellTemplate, headerClass, name, sort, sortCellFiltered, suppressRemoveSort, visible, width
+                        //console.log($scope.gridApi.grid.columns);
+                        for (var i = 0; i < scope.gridApi.grid.columns.length; i++) {
+                            var col = scope.gridApi.grid.columns[i];
+                            if (col.field != "selectionRowHeaderCol") {
+                                var json = {};
+                                json.cellClass = col.cellClass;
+                                json.cellFilter = col.cellFilter;
+                                json.cellTemplate = col.cellTemplate;
+                                json.displayName = col.displayName;
+                                //json.colDef = col.colDef;
+                                json.drawnWidth = col.drawnWidth;
+                                json.enableFiltering = col.enableFiltering;
+                                json.enableSorting = col.enableSorting;
+                                json.field = col.field;
+                                json.filter = col.filter;
+                                json.filterCellFiltered = col.filterCellFiltered;
+                                json.filterHeadTemplate = col.filterHeadTemplate;
+                                json.headerCellClass = col.headerCellClass;
+                                json.headerCellFilter = col.headerCellFilter;
+                                json.headerCellTemplate = col.headerCellTemplate;
+                                json.headerClass = col.headerClass;
+                                json.sort = col.sort;
+                                json.sortCellFiltered = col.sortCellFiltered;
+                                json.suppressRemoveSort = col.suppressRemoveSort;
+                                json.visible = col.visible;
+                                json.width = col.width;
+                                columnDefs.push(json);
+                            }
+                        }
+                        storage.write($scope.storageKey, JSON.stringify(columnDefs));
+                        //storage.write(storageKey, JSON.stringify(storedValues));
                     };
                     // NOTE: Defaults for the gridOptions
                     // $scope.rowHeight = 21;
@@ -206,9 +244,9 @@ var timeConst = 60000 * 24 * 60;
                     $scope.$watch('data', function () {
                         if ($scope.data) {
                             if ($scope.data.length) {
+                                //$scope.storedValues = $scope.GetStoredValue();
                                 var data = $scope.data;
                                 data = ProcessDataForCorrectDates(data);
-                                //console.log($scope.rowHeight);
                                 $scope.gridOptions = {
                                     data: $scope.data,
                                     columnDefs: GetColumnDefs($scope.data),
@@ -220,35 +258,48 @@ var timeConst = 60000 * 24 * 60;
                                     showColumnFooter: $scope.showColumnFooter,
                                     columnFooterHeight: 20,
                                     exporterMenuPdf: false,
+                                    exporterMenuCsv: false,
+                                    enableColumnMenu: $scope.showColMenu,
                                     enableFullRowSelection: $scope.fullRowSelec,
                                     enableHorizontalScrollbar: $scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
                                     rowTemplate: '<div data-ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
                                     onRegisterApi: function (gridApi) {
                                         $scope.gridApi = gridApi;
-                                        gridApi.selection.on.rowSelectionChanged($scope, function (row) {
-                                            $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
-                                        });
-                                        gridApi.selection.on.rowSelectionChangedBatch($scope, function (rows) {
-                                            for (var i = 0; i < rows.length; i++) {
-                                                var row = rows[i];
+                                        if (gridApi.colResizable) {
+                                            gridApi.colResizable.on.columnSizeChanged($scope, function () {
+                                                $scope.Store();
+                                            });
+                                        }
+                                        if (gridApi.core) {
+                                            gridApi.core.on.columnVisibilityChanged($scope, function () {
+                                                $scope.Store();
+                                            });
+                                        }
+                                        if (gridApi.selection) {
+                                            gridApi.selection.on.rowSelectionChanged($scope, function (row) {
                                                 $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
-                                            }
-                                        });
+                                            });
+                                            gridApi.selection.on.rowSelectionChangedBatch($scope, function (rows) {
+                                                for (var i = 0; i < rows.length; i++) {
+                                                    var row = rows[i];
+                                                    $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
+                                                }
+                                            });
+                                        }
                                         gridApi.core.on.filterChanged($scope, function () {
-                                            $scope.Store('filters');
+                                            $scope.Store($scope);
                                         });
                                         gridApi.core.on.sortChanged($scope, function () {
-                                            $scope.Store('sorts');
+                                            $scope.Store();
                                         });
                                     }
                                 };
+                                $scope.gridOptions.enableGridMenu = true;
                                 if ($scope.export) {
-                                    $scope.gridOptions.enableGridMenu = true;
-                                    $scope.gridOptions.exporterCsvFilename = "exported.csv";
-                                    $scope.gridOptions.exporterCsvLinkElement = angular.element(document.querySelectorAll(".custom-csv-link-location"));
-                                } else {
-                                    $scope.gridOptions.enableGridMenu = false;
+                                    $scope.gridOptions.exporterMenuCsv = true;
                                 }
+                                $scope.gridOptions.exporterCsvFilename = "exported.csv";
+                                $scope.gridOptions.exporterCsvLinkElement = angular.element(document.querySelectorAll(".custom-csv-link-location"));
                                 $scope.exporterFieldCallback = function exporterFieldCallback(grid, row, col, value) {
                                     var field = col.field;
                                     var option = $scope.options.findOne(field, 'columnID');
@@ -320,7 +371,7 @@ var timeConst = 60000 * 24 * 60;
                         //console.log(calculatedHeight);
                         if ($scope.data && $scope.data.length) {
                             var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid="gridOptions" ' +
-                                'ui-grid-auto-resize="" ui-grid-selection="" ui-grid-exporter="" ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
+                                'ui-grid-auto-resize="" ' + ($scope.selectRow || $scope.export ? 'ui-grid-selection="" ' : '') + 'ui-grid-exporter="" ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
                                 'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
                             //el.clientHeight = maxHeight - offset;
                             angular.element(elm).append(el);
@@ -356,143 +407,146 @@ var timeConst = 60000 * 24 * 60;
                      @description Build the column definitions for the input data to display in the grid
                      */
                     var GetColumnDefs = function (data) {
-                        //var dataRow = data[0];
                         var columnDefs = [];
-                        var columnOptions = BuildColumnOptions(data);
-                        //console.log(columnOptions);
-                        var headerOffset = $scope.headerOffset;
-                        var totalWidth = 0;
-                        var errorWidth = 0;
-                        $scope.gridWidth = 0;
-                        for (var i = 0; i < columnOptions.length; i++) {
-                            var opt = columnOptions[i];
-                            var cellTemp = '';
-                            var footTemp = '';
-                            var headTemp = '';
-                            var showFoot = false;
-                            if (opt.columnID == 'EDIT')
-                                cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.editRow({value:row.entity.Request})">Edit</div>';
-                            //if (opt.columnID == 'CHECK')
-                            //    cellTemp = '<div class="ui-grid-cell-contents"><input type="checkbox" data-ng-click="row.entity.isSelected = !row.entity.isSelected" data-ng-model="row.entity.isSelected"/></div>';
-                            if (opt.template) {
-                                cellTemp = $scope.getTemplate({ value: opt.template });
-                            }
-                            if (opt.footTemplate) {
-                                footTemp = $scope.getTemplate({ value: opt.footTemplate });
-                                showFoot = true;
-                            }
-                            if (opt.headTemplate) {
-                                headTemp = $scope.getTemplate({ value: opt.headTemplate });
-                            }
-                            var sort = {};
-                            //Building the sort object
-                            if (opt.defSort && opt.defSort != '') {
-                                sort.direction = opt.defSort.toUpperCase() == 'ASC' ? uiGridConstants.ASC : opt.defSort.toUpperCase() == 'DESC' ? uiGridConstants.DESC : '';
-                                sort.priority = opt.priority;
-                            }
-                            //auto calculate the column width from data value length
-                            var dataLength = 0;
-                            var width;
-                            opt.columnName = opt.columnName ? opt.columnName : opt.columnID.toUpperCase();
-                            //auto generate columnName if not there
-                            var displayName = opt.columnName ? opt.columnName : opt.columnID.toString().toUpperCase().replace('_', ' ').replace('_', ' ').replace('_', ' ');
-                            //auto calculate the header text length from columnNames
-                            //if width is not set on the column in columnOptions
-                            if (opt.visible !== undefined && opt.visible) {
-                                if (opt.width && opt.width.toUpperCase() === 'AUTO') {
-                                    for (var j = 0; j < data.length; j++) {
-                                        var d = data[j];
-                                        if ((dataLength) < GetWidth(d[opt.columnID]))
-                                            dataLength = GetWidth(d[opt.columnID]);
+                        var storedValues = $scope.GetStoredValue();
+                        if (storedValues) {
+                            columnDefs = storedValues;
+                        } else {
+                            //var dataRow = data[0];
+                            var columnOptions = BuildColumnOptions(data);
+                            //console.log(columnOptions);
+                            var headerOffset = $scope.headerOffset;
+                            var totalWidth = 0;
+                            var errorWidth = 0;
+                            $scope.gridWidth = 0;
+                            for (var i = 0; i < columnOptions.length; i++) {
+                                var opt = columnOptions[i];
+                                var cellTemp = '';
+                                var footTemp = '';
+                                var headTemp = '';
+                                var showFoot = false;
+                                if (opt.columnID == 'EDIT')
+                                    cellTemp = '<div class="hyperlink ui-grid-cell-contents" data-ng-click="grid.appScope.editRow({value:row.entity.Request})">Edit</div>';
+                                if (opt.template) {
+                                    cellTemp = $scope.getTemplate({value: opt.template});
+                                }
+                                if (opt.footTemplate) {
+                                    footTemp = $scope.getTemplate({value: opt.footTemplate});
+                                    showFoot = true;
+                                }
+                                if (opt.headTemplate) {
+                                    headTemp = $scope.getTemplate({value: opt.headTemplate});
+                                }
+                                var sort = {};
+                                //Building the sort object
+                                if (opt.defSort && opt.defSort != '') {
+                                    sort.direction = opt.defSort.toUpperCase() == 'ASC' ? uiGridConstants.ASC : opt.defSort.toUpperCase() == 'DESC' ? uiGridConstants.DESC : '';
+                                    sort.priority = opt.priority;
+                                }
+                                //auto calculate the column width from data value length
+                                var dataLength = 0;
+                                var width;
+                                opt.columnName = opt.columnName ? opt.columnName : opt.columnID.toUpperCase();
+                                //auto generate columnName if not there
+                                var displayName = opt.columnName ? opt.columnName : opt.columnID.toString().toUpperCase().replace('_', ' ').replace('_', ' ').replace('_', ' ');
+                                //auto calculate the header text length from columnNames
+                                //if width is not set on the column in columnOptions
+                                if (opt.visible !== undefined && opt.visible) {
+                                    if (opt.width && opt.width.toUpperCase() === 'AUTO') {
+                                        for (var j = 0; j < data.length; j++) {
+                                            var d = data[j];
+                                            if ((dataLength) < GetWidth(d[opt.columnID]))
+                                                dataLength = GetWidth(d[opt.columnID]);
+                                        }
+                                        var gotWidth = GetWidth(displayName);
+                                        width = dataLength > gotWidth ? dataLength : gotWidth;
                                     }
-                                    var gotWidth = GetWidth(displayName);
-                                    width = dataLength > gotWidth ? dataLength : gotWidth;
+                                    else if (opt.width && opt.width.toUpperCase() !== 'AUTO') {
+                                        width = parseInt(opt.width);
+                                    }
+                                    else {
+                                        width = 0;
+                                    }
                                 }
-                                else if (opt.width && opt.width.toUpperCase() !== 'AUTO') {
-                                    width = parseInt(opt.width);
+                                if (width === undefined) {
+                                    width = 40;
+                                    errorWidth += width;
                                 }
-                                else {
-                                    width = 0;
-                                }
-                            }
-                            if (width === undefined) {
-                                width = 40;
-                                errorWidth += width;
-                            }
-                            var o = {};
-                            o.field = opt.columnID;
-                            o.displayName = displayName;
-                            o.width = width + headerOffset;
-                            $scope.gridWidth += o.width;
-                            o.cellFilter = opt.filter ? opt.filter : '';
-                            o.cellTemplate = cellTemp ? cellTemp : '';
-                            o.enableHiding = false;
-                            o.enableColumnMenu = false;
-                            o.enableColumnResizing = true;
-                            o.enableSorting = opt.enableSorting;
-                            o.visible = (opt.visible === undefined ? true : opt.visible);
-                            o.enableFiltering = opt.filterable;
-                            o.cellClass = opt.class ? opt.class : '';
-                            o.footerCellTemplate = footTemp ? footTemp : '';
-                            o.headerCellTemplate = headTemp ? headTemp : '';
-                            o.showColumnFooter = showFoot;
-                            //o.sort = $scope.GetStoredValue(o.field, 'sorts');
-                            o.filter = {term: $scope.GetStoredValue(o.field, 'filters')};
-                            o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
-                                'colFilter.disableCancelFilterButton === true}"><input type="text" class="ui-grid-filter-input" ' +
-                                'ng-model="colFilter.term" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
-                                'ng-click="removeFilter(colFilter, $index)" ng-if="!colFilter.disableCancelFilterButton" data-ng-disabled="colFilter.term === undefined || colFilter.term === null || ' +
-                                'colFilter.term === \'\'" ng-show="colFilter.term !== undefined &amp;&amp; colFilter.term !== null &amp;&amp; colFilter.term !== \'\'"><div>' +
-                                '<i class="ui-grid-icon-cancel" ui-grid-one-bind-aria-label="aria.removeFilter" aria-label="Remove Filter">&nbsp;</i></div></div></div>';
-                            o.sort = sort;
+                                var o = {};
+                                o.field = opt.columnID;
+                                o.filter = {};
+                                o.filter.term = '';
+                                o.displayName = displayName;
+                                o.width = width + headerOffset;
+                                $scope.gridWidth += o.width;
+                                o.cellFilter = opt.filter ? opt.filter : '';
+                                o.cellTemplate = cellTemp ? cellTemp : '';
+                                o.enableColumnMenu = $scope.showColMenu;
+                                o.enableColumnResizing = true;
+                                o.enableSorting = opt.enableSorting;
+                                o.visible = (opt.visible === undefined ? true : opt.visible);
+                                o.enableFiltering = opt.filterable;
+                                o.cellClass = opt.class ? opt.class : '';
+                                o.footerCellTemplate = footTemp ? footTemp : '';
+                                o.headerCellTemplate = headTemp ? headTemp : '';
+                                o.showColumnFooter = showFoot;
+                                //o.filter = { term: $scope.GetStoredValue(o.field, 'filters') };
+                                o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
+                                    'colFilter.disableCancelFilterButton === true}"><input type="text" class="ui-grid-filter-input" ' +
+                                    'ng-model="colFilter.term" ng-model-options="{debounce:50}" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
+                                    'ng-click="removeFilter(colFilter, $index)" ng-if="!colFilter.disableCancelFilterButton" ng-disabled="colFilter.term === undefined || colFilter.term === null || ' +
+                                    'colFilter.term === \'\'" ng-show="colFilter.term !== undefined &amp;&amp; colFilter.term !== null &amp;&amp; colFilter.term !== \'\'"><div>' +
+                                    '<i class="ui-grid-icon-cancel" ui-grid-one-bind-aria-label="aria.removeFilter" aria-label="Remove Filter">&nbsp;</i></div></div></div>';
+                                o.sort = sort;
 
-                            o.type = opt.type ? opt.type : '';
-                            if (o.type.length) {
-                                if (o.type === 'floatnumber') {
-                                    o.sortingAlgorithm = function (a, b) {
-                                        if (a === null && b !== null)
-                                            return -1;
-                                        else if (a !== null && b === null)
-                                            return 1;
-                                        else if (a === null && b === null)
-                                            return 0;
-                                        else if (parseFloat(a) > parseFloat(b))
-                                            return 1;
-                                        else if (parseFloat(a) < parseFloat(b))
-                                            return -1;
-                                        else if (parseFloat(a) === parseFloat(b))
-                                            return 0;
-                                        else return 0;
+                                o.type = opt.type ? opt.type : '';
+                                if (o.type.length) {
+                                    if (o.type === 'floatnumber') {
+                                        o.sortingAlgorithm = function (a, b) {
+                                            if (a === null && b !== null)
+                                                return -1;
+                                            else if (a !== null && b === null)
+                                                return 1;
+                                            else if (a === null && b === null)
+                                                return 0;
+                                            else if (parseFloat(a) > parseFloat(b))
+                                                return 1;
+                                            else if (parseFloat(a) < parseFloat(b))
+                                                return -1;
+                                            else if (parseFloat(a) === parseFloat(b))
+                                                return 0;
+                                            else return 0;
+                                        }
+                                    }
+                                    else if (o.type === 'date') {
+                                        o.sortingAlgorithm = function (a, b) {
+                                            //if (a === null && b !== null)
+                                            //    return -1;
+                                            //else if (a != null && b === null)
+                                            //    return 1;
+                                            a = new Date(a);
+                                            b = new Date(b);
+                                            if (a === null && b === null)
+                                                return 0;
+                                            else if (a > b)
+                                                return 1;
+                                            else if (a < b)
+                                                return -1;
+                                            else if (a === b)
+                                                return 0;
+                                            else return 0;
+                                        }
                                     }
                                 }
-                                else if (o.type === 'date') {
-                                    o.sortingAlgorithm = function (a, b) {
-                                        //if (a === null && b !== null)
-                                        //    return -1;
-                                        //else if (a != null && b === null)
-                                        //    return 1;
-                                        a = new Date(a);
-                                        b = new Date(b);
-                                        if (a === null && b === null)
-                                            return 0;
-                                        else if (a > b)
-                                            return 1;
-                                        else if (a < b)
-                                            return -1;
-                                        else if (a === b)
-                                            return 0;
-                                        else return 0;
-                                    }
-                                }
+                                columnDefs.push(o);
+                                if (opt.visible)
+                                    totalWidth += (width + headerOffset);
                             }
-                            columnDefs.push(o);
-                            if (opt.visible)
-                                totalWidth += (width + headerOffset);
+                            $scope.ShowDefaultGrid();
+                            //$scope.gridWidth = totalWidth + 30 + errorWidth;
+                            return columnDefs;
                         }
-
                         $scope.ShowDefaultGrid();
-                        //$scope.gridWidth = totalWidth + 30 + errorWidth;
-                        //console.log(columnDefs);
                         return columnDefs;
                     };
                     /**

@@ -1,3 +1,5 @@
+@import 'variables';
+
 .ui-grid-column-menu-button-last-col {
   margin-right: 0px;
 }
@@ -77,4 +79,37 @@ input[type=text].ui-grid-filter-input {
 div.ui-grid-cell input[type=checkbox] {
   margin: 0 !important;
   width: auto;
+}
+
+span[id$='sortdir-text'] {
+  position: absolute;
+  top: 8px;
+  right: 0px;
+  font-size: 12px;
+  width: 16px;
+  height: 13px;
+}
+
+/*All the buttons in RMS is overridden with background color as black and fore color as white*/
+.ui-grid-column-menu-button {
+  right: 0;
+  font-size: 12px;
+  background-color: @primary-color;
+  height: 13px;
+  width: 16px;
+}
+
+.ui-grid-menu .ui-grid-menu-inner ul li button {
+  background: 0 0 !important;
+  color: #000;
+}
+
+.ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button {
+  background-color: transparent !important;
+  color: #000;
+}
+
+.ui-grid-menu-button {
+  height: 22px;
+  width: 20px;
 }
