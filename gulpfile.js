@@ -16,14 +16,6 @@ gulp.task('js', function(){
 gulp.task('variables', function(){
   gulp.src(['./node_modules/angular-ui-grid/less/variables.less','./node_modules/angular-ui-grid/less/main.less'])
   .pipe(gulp.dest('./src/less'))
-})
-
-gulp.task('less-main', function(){
-  gulp.src('./ui-grid/src/less/main.less')
-  .pipe(less())
-  .pipe(minifyCss())
-  .pipe(rename('./src/css/ui-grid-main.min.css'))
-  .pipe(gulp.dest('./'))
 });
 
 gulp.task('less', function(){
