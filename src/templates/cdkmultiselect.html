@@ -10,7 +10,7 @@
         <div class="values">
             <ul>
                 <li title="{{val[tip]}}" ng-class="val.selected?'check':'uncheck'" ng-show="val.shown"
-                    ng-repeat="val in data | orderBy : val.selected.toString()" value="val[prop]"
+                    ng-repeat="val in data track by $index" value="val[prop]"
                     ng-click="CheckIt($index)">
                     {{val[text]}}
                 </li>
