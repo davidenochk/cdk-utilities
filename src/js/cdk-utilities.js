@@ -43,7 +43,7 @@ var NVL = function NVL(val, replc) {
         return val;
 };
 (function () {
-    angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.exporter', 'ui.grid.autoResize'])
+    angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.exporter', 'ui.grid.autoResize', 'ui.grid.pinning'])
         .service('progress', function () {
             var progressObj = {count: 0};
             this.GetProgressObj = function () {
@@ -227,6 +227,9 @@ var NVL = function NVL(val, replc) {
                                 json.headerCellTemplate = col.headerCellTemplate;
                                 json.headerClass = col.headerClass;
                                 json.sort = col.sort;
+                                json.enablePinning = col.enablePinning;
+                                json.pinnedLeft = col.pinnedLeft;
+                                json.pinnedRight = col.pinnedRight;
                                 json.sortCellFiltered = col.sortCellFiltered;
                                 json.suppressRemoveSort = col.suppressRemoveSort;
                                 json.visible = col.visible;
@@ -371,7 +374,7 @@ var NVL = function NVL(val, replc) {
                         //console.log(calculatedHeight);
                         if ($scope.data && $scope.data.length) {
                             var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid="gridOptions" ' +
-                                'ui-grid-auto-resize="" ' + ($scope.selectRow || $scope.export ? 'ui-grid-selection="" ' : '') + 'ui-grid-exporter="" ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
+                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow || $scope.export ? 'ui-grid-selection="" ' : '') + 'ui-grid-exporter="" ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
                                 'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
                             //el.clientHeight = maxHeight - offset;
                             angular.element(elm).append(el);
@@ -489,6 +492,9 @@ var NVL = function NVL(val, replc) {
                                 o.cellClass = opt.class ? opt.class : '';
                                 o.footerCellTemplate = footTemp ? footTemp : '';
                                 o.headerCellTemplate = headTemp ? headTemp : '';
+                                o.enablePinning = opt.enablePinning;
+                                o.pinnedLeft = opt.pinnedLeft;
+                                o.pinnedRight = opt.pinnedRight;
                                 o.showColumnFooter = showFoot;
                                 //o.filter = { term: $scope.GetStoredValue(o.field, 'filters') };
                                 o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
@@ -642,6 +648,9 @@ var NVL = function NVL(val, replc) {
                             option.headTemplate = colOpts.headTemplate ? colOpts.headTemplate : '';
                             option.defSort = colOpts.defSort ? colOpts.defSort : '';
                             option.priority = colOpts.priority ? colOpts.priority : '';
+                            option.enablePinning = colOpts.enablePinning ? colOpts.enablePinning : false;
+                            option.pinnedLeft = colOpts.pinnedLeft ? colOpts.pinnedLeft : false;
+                            option.pinnedRight = colOpts.pinnedRight ? colOpts.pinnedRight : false;
                             columnOptions.push(option);
                         }
                         //console.log(columnOptions);
