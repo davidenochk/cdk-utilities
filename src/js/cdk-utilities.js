@@ -23,6 +23,17 @@ Array.prototype.findOne = function (vl, c) {
     }
     return v;
 };
+Array.prototype.findMatch = function (prop, str, all) {
+    if (this) {
+        var arr = [];
+        angular.forEach(this, function (v) {
+            if (v[prop].toString() == str.toString())
+                arr.push(v);
+        });
+        return arr;
+    }
+    return all;
+}
 var weekNames = {
     0: 'SUN',
     1: 'MON',
@@ -92,6 +103,11 @@ var NVL = function NVL(val, replc) {
                 return $filter('number')(val, 2);
             }
         })
+        .filter('unsafe', ['$sce', function ($sce) {
+            return function (val) {
+                return $sce.trustAsHtml(val);
+            };
+        }])
 
         .service('storage', function () {
             this.write = function (key, value) {
@@ -122,7 +138,7 @@ var NVL = function NVL(val, replc) {
                     headerOffset: '=?', /*header offset value*/
                     autoHeightOffset: '=?', /*auto height offset calculation*/
                     getTemplate: '&', /*for getting the templates*/
-                    storageKeyPrefix: '=?', /*For localstorage, to save the filters and sorts*/
+                    storageKeyPrefix: '=?', /*For localstorage, to save the column definitions*/
                     fullRowSelec: '=?', /*to enable full row selection by clicking anywhere on the row*/
                     showColMenu: '=?', /*to show or hide the column menus*/
                     class: '=?', /*add the cell class*/
@@ -179,7 +195,12 @@ var NVL = function NVL(val, replc) {
                         //}
                     });
                     $scope.GetStoredValue = function () {
-                        return JSON.parse(storage.read($scope.storageKey));
+                        if ($scope.storageKeyPrefix) {
+                            return JSON.parse(storage.read($scope.storageKey));
+                        }
+                        else {
+                            return undefined;
+                        }
                     };
                     $scope.Store = function Store(scope) {
                         //console.log($scope.gridApi.grid.columns);
@@ -237,7 +258,9 @@ var NVL = function NVL(val, replc) {
                                 columnDefs.push(json);
                             }
                         }
-                        storage.write($scope.storageKey, JSON.stringify(columnDefs));
+                        if ($scope.storageKeyPrefix) {
+                            storage.write($scope.storageKey, JSON.stringify(columnDefs));
+                        }
                         //storage.write(storageKey, JSON.stringify(storedValues));
                     };
                     // NOTE: Defaults for the gridOptions
@@ -671,6 +694,38 @@ var NVL = function NVL(val, replc) {
                 }
             }
         })
+        .filter('searchFilter', function () {
+            return function (value, searchStr, prop, text, role, reverse) {
+                var result = [];
+                if (reverse)
+                    prop = text;
+                if (value) {
+                    for (var i = 0; i < value.length; i++) {
+                        var val = value[i];
+                        if (val.selected == undefined)
+                            val.selected = false;
+                        if (val.shown == undefined || role == 'reset')
+                            val.shown = true;
+                        if (searchStr == '') {
+                            val.shown = true;
+                            result.push(val);
+                        } else {
+                            if (val[prop] && val[prop].toString().toUpperCase().toString().indexOf(searchStr.toString().toUpperCase()) > -1) {
+                                val.shown = true;
+                                result.push(val);
+                            }
+                            else {
+                                val.shown = false;
+                                result.push(val);
+                            }
+                        }
+                    }
+
+                }
+                return result;
+            }
+        })
+
         /**
          @module cdk-utilities
          @method cdkMultiSelect directive
@@ -679,15 +734,161 @@ var NVL = function NVL(val, replc) {
         .directive('cdkMultiSelect', function () {
             return {
                 restrict: 'EA',
+                templateUrl: '../../templates/cdkmultiselect.html',
                 scope: {
                     // TODO: Write the options
+                    data: '=in',
+                    prop: '@value',
+                    text: '@text',
+                    defaultText: '@deftext',
+                    json: '=json',
+                    tip: '@tooltipColumn',
+                    outvalues: '=out',
+                    selected: '=?filtered',
+                    reverseprop: '=?reverse',
+                    ind: '@index'
                 },
-                link: function cdkMultiSelectLink(scope, el, attr) {
+                link: function cdkMultiSelectLink(scope, el, attrs) {
                     // TODO: Link the default values to the options
+                    //Default Values if attributes are not given
+                    if (!attrs.deftext)
+                        attrs.deftext = 'Select';
+                    if (!attrs.searchable)
+                        scope.search = true;
+                    else
+                        scope.search = false;
+                    if (attrs.json)
+                        scope.dojson = true;
+                    else
+                        scope.dojson = false;
+                    if (!attrs.filtered)
+                        scope.selected = [];
+                    if (!attrs.reverse)
+                        scope.reverse = true;
+                    else
+                        scope.reverse = false;
+                    scope.ind = scope.ind ? scope.ind : '';
                 },
-                controller: function cdkMultiSelectController($scope) {
+                controller: function cdkMultiSelectController($scope, $filter) {
                     // TODO: Write the functionality for the multi select
-                    // TODO:
+                    $scope.searchString = '';
+                    $scope.all = true;
+                    $scope.uncheckAll = false;
+                    $scope.checkAll = true;
+                    ///Executed when any element in the list is clicked on
+                    ///toggles the selected property on the item
+                    $scope.CheckIt = function (ind) {
+                        $scope.data[ind].selected = !$scope.data[ind].selected;
+                        SetFlags()
+                    };
+                    ///Use the searchFilter(custom filter) to filter the data for the string entered
+                    ///This is where additional properties are pushed to each object in the array
+                    ///selected & shown
+                    $scope.filterData = function (role) {
+                        $scope.data = $filter('searchFilter')($scope.data, $scope.searchString, $scope.prop, $scope.text, role, $scope.reverseprop);
+                        //if ($scope.data.findMatch('selected', true).length)
+                        //    ToggleAllData(false);
+                        //else
+                        //    ToggleAllData(true);
+                    };
+                    //Build JSON
+                    $scope.BuildJSON = function () {
+                        var jsonV = [];
+                        var selectedValues = [];
+                        $scope.outvalues = [];
+                        if (!$scope.json) $scope.json = [];
+                        if ($scope.json) {
+                            angular.forEach($scope.data.findMatch('selected', true), function (d) {
+                                jsonV.push("'" + ($scope.reverseprop ? d[$scope.text].toString().trim().replace('&', "chr(38)") : d[$scope.prop].toString().trim().replace('&', "chr(38)")) + "'");
+                                selectedValues.push(d[$scope.prop].toString().trim());
+                            });
+                            $scope.json = jsonV;
+                            $scope.outvalues = selectedValues;
+                        }
+                    };
+                    ///Reset all the variables
+                    $scope.Reset = function () {
+                        $scope.searchString = '';
+                        $scope.filterData('reset');
+                        ToggleAllData(false);
+                    };
+                    ///Used to toggle the all variable - all item in list
+                    $scope.ToggleAll = function (flag) {
+                        //if (!$scope.all)
+                        if (flag == 'checkall') {
+                            $scope.uncheckAll = false;
+                            $scope.checkAll = true;
+                            ToggleAllData(true);
+
+                        }
+                        else if (flag == 'uncheckall') {
+                            $scope.uncheckAll = true;
+                            $scope.checkAll = false;
+                            ToggleAllData(false);
+                        }
+
+                    };
+                    ///Form filter text
+                    $scope.BuildLabelText = function () {
+                        var str = '';
+                        var len = $scope.data.findMatch('selected', true).length;
+                        str = len ? '(Total : ' + len + ')' : '';
+                        return str;
+                    };
+                    ///ToggleDropDown
+                    $scope.showDrop = false;
+                    $scope.ToggleDropdown = function () {
+                        $scope.showDrop = !$scope.showDrop;
+                    };
+                    ///Watchers on
+                    /// Data - Filter the data when data is refreshed
+                    /// SearchString - Filter data when searchString is changed / entered
+                    /// all - when all is selected, every other item should be unselected
+                    $scope.$watch('data', function () {
+                        if ($scope.data) {
+                            if ($scope.data.length) {
+                                if ($scope.data[0].selected == undefined)
+                                    $scope.filterData('');
+                            }
+                        }
+                        var t = $scope.BuildLabelText();
+                        $scope.displayText = (t == '' ? $scope.defaultText : t);
+                    });
+                    $scope.$watch('searchString', function () {
+                        $scope.filterData('');
+                    });
+                    //$scope.$watch('selected', function () { if (!$scope.selected) $scope.selected = []; else { $scope.filterData(''); } })
+                    $scope.$watch('data', function () {
+                        if ($scope.data.length) {
+                            var t = $scope.BuildLabelText();
+                            $scope.displayText = (t == '' ? $scope.defaultText : t);
+                            if ($scope.dojson)
+                                $scope.BuildJSON();
+                            SetFlags()
+                        }
+                    }, true);
+                    var SetFlags = function SetFlags() {
+                        if ($scope.data.findAll(true, 'selected').length == $scope.data.length) {
+                            $scope.uncheckAll = false;
+                            $scope.checkAll = true;
+                        }
+                        else if ($scope.data.findAll(true, 'selected').length == 0) {
+                            $scope.uncheckAll = true;
+                            $scope.checkAll = false;
+                        }
+                        else {
+                            $scope.checkAll = false;
+                            $scope.uncheckAll = false;
+                        }
+                    };
+
+                    var ToggleAllData = function ToggleAll(bool) {
+                        angular.forEach($scope.data, function (d) {
+                            if (d.shown) {
+                                d.selected = bool;
+                            }
+                        });
+                    }
                 }
             }
         })

@@ -1,0 +1,20 @@
+<div class="cdk-multi-wrap" ng-mouseleave="showDrop=false">
+    <input type="text" data-ng-click="ToggleDropdown()" class="select-icon" value="{{displayText}}"/>
+    <div class="multi-selected">{{all ? data.length : data.findMatch('selected',true).length}}</div>
+    <div class="cdk-multi-drop" ng-class="showDrop?'expand':'collapse'">
+        <input ng-show="search" class="search-input" ng-model="searchString" type="text" placeholder="Search">
+        <input type="button" class="cdk-btn-icon cdk-btn" ng-click="ToggleAll('checkall')" ng-disabled="checkAll"
+               value="✔"/>
+        <input type="button" class="cdk-btn-icon cdk-btn" ng-click="ToggleAll('uncheckall')" ng-disabled="uncheckAll"
+               value="X"/>
+        <div class="values">
+            <ul>
+                <li title="{{val[tip]}}" ng-class="val.selected?'check':'uncheck'" ng-show="val.shown"
+                    ng-repeat="val in data | orderBy : val.selected.toString()" value="val[prop]"
+                    ng-click="CheckIt($index)">
+                    {{val[text]}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
