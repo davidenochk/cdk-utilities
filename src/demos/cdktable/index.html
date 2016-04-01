@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="cdkdemos">
+<head>
+    <style>
+        html, body {
+            font-family: RobotoDraft;
+            font-size: 13px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>CDK Multi Select</title>
+    <link href="../../css/ui-grid.min.css" rel="stylesheet"/>
+    <script src="../../../node_modules/angular-ui-grid/node_modules/angular/angular.min.js"
+            type="application/javascript"></script>
+    <script src="../../js/ui-grid.min.js" type="application/javascript"></script>
+    <script src="../../js/cdk-utilities.js" type="application/javascript"></script>
+    <script src="./app.js" type="application/javascript"></script>
+    <link href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic" rel="stylesheet">
+</head>
+<body data-ng-controller="demoController">
+
+<cdk-table style="width:auto;" id="cdk" model="data" options="[
+            {columnID:'Description', columnName:'Description'},
+            {columnID:'Mfgcodesegmentcode', columnName:'MFG Code Segment Code', cellTooltip: true}
+        ]" auto-generate-columns="false" select-row="false">
+</cdk-table>
+</body>
+</html>

@@ -18,7 +18,32 @@
     <link href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic" rel="stylesheet">
 </head>
 <body data-ng-controller="demoController">
-<cdk-multi-select
+
+<cdk-multi-select style="display:inline-block;"
+                  in="data"
+                  tooltip-column="Description"
+                  text="Description"
+                  value="Sub_Class_Code"
+                  deftext="Select"
+                  json="jdata"
+                  out="odata"
+                  reverse="true"
+                  index="$index">
+</cdk-multi-select>
+
+<cdk-multi-select style="display:inline-block;"
+                  in="data"
+                  tooltip-column="Description"
+                  text="Description"
+                  value="Sub_Class_Code"
+                  deftext="Select"
+                  json="jdata"
+                  out="odata"
+                  reverse="true"
+                  index="$index">
+</cdk-multi-select>
+
+<cdk-multi-select style="display:inline-block;"
         in="data"
         tooltip-column="Description"
         text="Description"

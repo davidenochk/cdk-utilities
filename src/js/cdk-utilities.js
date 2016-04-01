@@ -70,17 +70,6 @@ var NVL = function NVL(val, replc) {
                 progressObj.count = 0;
             };
         })
-        .directive('progressBar', ['progress', function (progress) {
-            return {
-                restrict: 'E',
-                //template: '<div class="progress2-wrap"><div class="progress2"><md-progress-circular md-mode="indeterminate"></md-progress-circular></div></div>',
-                template: '<div class="progress-wrapper">' +
-                '<div class="progress">Loading<span class="dots">...</span></div></div>',
-                controller: function ($scope, progress) {
-                    $scope.progressObj = progress.GetProgressObj();
-                }
-            };
-        }])
         .filter('formatDate', function ($filter) {
             return function (val) {
                 var aDate = val;
@@ -108,7 +97,37 @@ var NVL = function NVL(val, replc) {
                 return $sce.trustAsHtml(val);
             };
         }])
+        .filter('searchFilter', function () {
+            return function (value, searchStr, prop, text, role, reverse) {
+                var result = [];
+                if (reverse)
+                    prop = text;
+                if (value) {
+                    for (var i = 0; i < value.length; i++) {
+                        var val = value[i];
+                        if (val.selected == undefined)
+                            val.selected = false;
+                        if (val.shown == undefined || role == 'reset')
+                            val.shown = true;
+                        if (searchStr == '') {
+                            val.shown = true;
+                            result.push(val);
+                        } else {
+                            if (val[prop] && val[prop].toString().toUpperCase().toString().indexOf(searchStr.toString().toUpperCase()) > -1) {
+                                val.shown = true;
+                                result.push(val);
+                            }
+                            else {
+                                val.shown = false;
+                                result.push(val);
+                            }
+                        }
+                    }
 
+                }
+                return result;
+            }
+        })
         .service('storage', function () {
             this.write = function (key, value) {
                 localStorage.setItem(key, value);
@@ -117,6 +136,17 @@ var NVL = function NVL(val, replc) {
                 return localStorage.getItem(key);
             };
         })
+        .directive('progressBar', ['progress', function (progress) {
+            return {
+                restrict: 'E',
+                //template: '<div class="progress2-wrap"><div class="progress2"><md-progress-circular md-mode="indeterminate"></md-progress-circular></div></div>',
+                template: '<div class="progress-wrapper">' +
+                '<div class="progress">Loading<span class="dots">...</span></div></div>',
+                controller: function ($scope, progress) {
+                    $scope.progressObj = progress.GetProgressObj();
+                }
+            };
+        }])
         .directive('cdkTable', function () {
             return {
                 restrict: 'EA',
@@ -151,7 +181,7 @@ var NVL = function NVL(val, replc) {
                     priority: '@', /*sort on the column according to this priority*/
                     offsetRowHeight: '@', /*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
                     rowHeight: '@', /*to give height to the row*/
-                    priKey: '@' /*Primary Key for the selection of the row, the checkbox in the first column in every row*/
+                    priKey: '@', /*Primary Key for the selection of the row, the checkbox in the first column in every row*/
                 },
                 link: function cdkTableLink(scope) {
                     // description: Set defaults to the attributes
@@ -519,6 +549,7 @@ var NVL = function NVL(val, replc) {
                                 o.pinnedLeft = opt.pinnedLeft;
                                 o.pinnedRight = opt.pinnedRight;
                                 o.showColumnFooter = showFoot;
+                                o.cellTooltip = opt.cellTooltip;
                                 //o.filter = { term: $scope.GetStoredValue(o.field, 'filters') };
                                 o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
                                     'colFilter.disableCancelFilterButton === true}"><input type="text" class="ui-grid-filter-input" ' +
@@ -571,8 +602,8 @@ var NVL = function NVL(val, replc) {
                                 if (opt.visible)
                                     totalWidth += (width + headerOffset);
                             }
+                            !$scope.selectRow ? $scope.gridWidth = $scope.gridWidth - 32 : null;
                             $scope.ShowDefaultGrid();
-                            //$scope.gridWidth = totalWidth + 30 + errorWidth;
                             return columnDefs;
                         }
                         $scope.ShowDefaultGrid();
@@ -674,6 +705,7 @@ var NVL = function NVL(val, replc) {
                             option.enablePinning = colOpts.enablePinning ? colOpts.enablePinning : false;
                             option.pinnedLeft = colOpts.pinnedLeft ? colOpts.pinnedLeft : false;
                             option.pinnedRight = colOpts.pinnedRight ? colOpts.pinnedRight : false;
+                            option.cellTooltip = colOpts.cellTooltip ? colOpts.cellTooltip : false;
                             columnOptions.push(option);
                         }
                         //console.log(columnOptions);
@@ -694,38 +726,6 @@ var NVL = function NVL(val, replc) {
                 }
             }
         })
-        .filter('searchFilter', function () {
-            return function (value, searchStr, prop, text, role, reverse) {
-                var result = [];
-                if (reverse)
-                    prop = text;
-                if (value) {
-                    for (var i = 0; i < value.length; i++) {
-                        var val = value[i];
-                        if (val.selected == undefined)
-                            val.selected = false;
-                        if (val.shown == undefined || role == 'reset')
-                            val.shown = true;
-                        if (searchStr == '') {
-                            val.shown = true;
-                            result.push(val);
-                        } else {
-                            if (val[prop] && val[prop].toString().toUpperCase().toString().indexOf(searchStr.toString().toUpperCase()) > -1) {
-                                val.shown = true;
-                                result.push(val);
-                            }
-                            else {
-                                val.shown = false;
-                                result.push(val);
-                            }
-                        }
-                    }
-
-                }
-                return result;
-            }
-        })
-
         /**
          @module cdk-utilities
          @method cdkMultiSelect directive
