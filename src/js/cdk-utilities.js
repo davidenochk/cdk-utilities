@@ -182,6 +182,7 @@ var NVL = function NVL(val, replc) {
                     offsetRowHeight: '@', /*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
                     rowHeight: '@', /*to give height to the row*/
                     priKey: '@', /*Primary Key for the selection of the row, the checkbox in the first column in every row*/
+                    menuOptions: '=?', /*Add custom menu options and methods*/
                 },
                 link: function cdkTableLink(scope) {
                     // description: Set defaults to the attributes
@@ -209,6 +210,7 @@ var NVL = function NVL(val, replc) {
                     scope.priKey = scope.priKey === undefined ? '' : scope.priKey;
                     scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
                     scope.showColMenu = scope.showColMenu === undefined ? true : scope.showColMenu;
+                    scope.menuOptions = scope.menuOptions === undefined ? [] : scope.menuOptions;
                 },
                 controller: function cdkTableController($scope, $compile, $window, $attrs, $log, $filter, uiGridConstants, storage) {
                     $scope.$watch('storageKeyPrefix', function () {
@@ -232,6 +234,9 @@ var NVL = function NVL(val, replc) {
                             return undefined;
                         }
                     };
+                    $scope.ExportToExcel = function (ev) {
+                        console.log(ev);
+                    }
                     $scope.Store = function Store(scope) {
                         //console.log($scope.gridApi.grid.columns);
                         //if (type === 'filters') {
@@ -306,6 +311,7 @@ var NVL = function NVL(val, replc) {
                                 $scope.gridOptions = {
                                     data: $scope.data,
                                     columnDefs: GetColumnDefs($scope.data),
+                                    gridMenuCustomItems: $scope.menuOptions,
                                     minRowsToShow: (data.length < 35 ? data.length : 35),
                                     rowHeight: parseInt($scope.rowHeight),
                                     minWidth: $scope.minWidth,

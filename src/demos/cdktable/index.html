@@ -15,14 +15,17 @@
     <script src="../../js/ui-grid.min.js" type="application/javascript"></script>
     <script src="../../js/cdk-utilities.js" type="application/javascript"></script>
     <script src="./app.js" type="application/javascript"></script>
-    <link href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic" rel="stylesheet">
 </head>
 <body data-ng-controller="demoController">
 
-<cdk-table style="width:auto;" id="cdk" model="data" options="[
+<cdk-table style="width:auto;" id="cdk" model="data"
+           options="[
             {columnID:'Description', columnName:'Description'},
             {columnID:'Mfgcodesegmentcode', columnName:'MFG Code Segment Code', cellTooltip: true}
-        ]" auto-generate-columns="false" select-row="false">
+        ]"
+           methods="{'ExportToExcel':ExportToExcel}"
+           menu-options="menuoptions"
+           auto-generate-columns="false" select-row="false">
 </cdk-table>
 </body>
 </html>

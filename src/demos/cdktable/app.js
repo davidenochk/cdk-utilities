@@ -9,6 +9,23 @@
             $q.when(data.GetData()).then(function (response) {
                 $scope.data = response;
             });
+            $scope.ExportToExcel = function ExportToExcel() {
+                console.log('Hello');
+            };
+            $scope.menuoptions = [
+                {
+                    title: 'Export to Excel',
+                    action: function ($event) {
+                        this.grid.appScope.methods.ExportToExcel();
+                    },
+                    order: 210
+                }, {
+                    title: 'Export to Excel',
+                    action: function ($event) {
+                        this.grid.appScope.methods.ExportToExcel();
+                    },
+                    order: 210
+                }];
         })
         .service('data', function ($q) {
             var _this = this;
