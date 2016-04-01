@@ -2063,7 +2063,7 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
 .cdk-multi-wrap, .multi-selected {
     position: relative;
     font-size: .9em;
-    font-family: RobotoDraft
+    font-family: RobotoDraft;
 }
 
 .btnCheckall {
