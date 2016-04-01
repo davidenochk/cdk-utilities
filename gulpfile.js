@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var less = require('gulp-less');
 var rename = require('gulp-rename');
 var minifyCss = require('gulp-minify-css');
+var watchLess = require('gulp-watch-less');
 
 gulp.task('fonts', function(){
   gulp.src(['node_modules/angular-ui-grid/*.eot', 'node_modules/angular-ui-grid/*.woff','node_modules/angular-ui-grid/*.svg','node_modules/angular-ui-grid/*.ttf'])
@@ -24,4 +25,13 @@ gulp.task('less', function(){
   .pipe(minifyCss())
   .pipe(rename('./src/css/ui-grid.min.css'))
   .pipe(gulp.dest('./'))
+});
+
+gulp.task('watch-less', function () {
+  gulp.src('./src/less/*.less')
+      .pipe(watchLess('./src/less/*.less'))
+      .pipe(less('./src/less/main.less'))
+      .pipe(minifyCss())
+      .pipe(rename('./src/css/ui-grid.min.css'))
+      .pipe(gulp.dest('./'))
 });

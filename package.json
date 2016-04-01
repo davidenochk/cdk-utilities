@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "angular-ui-grid": "^3.0.7",
-    "gulp-copy": "0.0.2"
+    "gulp-copy": "0.0.2",
+    "gulp-watch-less": "^1.0.1"
   }
 }
