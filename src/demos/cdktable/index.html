@@ -8,7 +8,7 @@
         }
     </style>
     <meta charset="UTF-8">
-    <title>CDK Multi Select</title>
+    <title>CDK Table</title>
     <link href="../../css/ui-grid.min.css" rel="stylesheet"/>
     <script src="../../../node_modules/angular-ui-grid/node_modules/angular/angular.min.js"
             type="application/javascript"></script>
@@ -18,14 +18,34 @@
 </head>
 <body data-ng-controller="demoController">
 
-<cdk-table style="width:auto;" id="cdk" model="data"
+<cdk-table id="MFGTable" class="mar-up" model="data" auto-generate-columns="false"
+           header-offset="25" max-height="AUTO" row-height="21" export="true" offset-row-height="20" select-row="true"
+           menu-options='menuOptions' selected="selected"
+           methods="{'exporttoExcel':exporttoExcel}"
            options="[
-            {columnID:'Description', columnName:'Description'},
-            {columnID:'Mfgcodesegmentcode', columnName:'MFG Code Segment Code', cellTooltip: true}
-        ]"
-           methods="{'ExportToExcel':ExportToExcel}"
-           menu-options="menuoptions"
-           auto-generate-columns="false" select-row="false">
-</cdk-table>
+                    {columnID:'MANUFACTURER_NAME', columnName:'Manufacturer', width:'AUTO', filterable:true},
+                    {columnID:'PARTY_NUMBER', columnName:'Party #', width:'AUTO', filterable:true},
+                    {columnID:'PARTY_NAME',columnName:'Party Name',  width:'AUTO', filterable:true},
+                    {columnID:'SEGMENT_CODE',columnName:'Sales Segment',  width:'AUTO', filterable:true},
+                    {columnID:'SALES_REGION',columnName:'Sales Region',  width:'AUTO', filterable:true},
+                    {columnID:'LOCATIONTYPE',columnName:'Location type', width:'AUTO', filterable:true},
+                    {columnID:'SINGLE_POINT',columnName:'Single Point', width:'AUTO', filterable:true},
+                    {columnID:'CORPORATION_NAME',columnName:'Corporation', width:'AUTO', filterable:true},
+                    {columnID:'GROUP_NAME',columnName:'Group',  width:'AUTO' , filterable:true},
+                    {columnID:'COBALT_ACCOUNT_NUMBER',columnName:'Cobalt #', width:'AUTO', filterable:true},
+                    {columnID:'INSTALLEDDMSCDKCLIENT', columnName:'installed CDK DMS',  width:'AUTO',filterable:true},
+                    {columnID:'EXISTINGPARTYCHECK', columnName:'Existing Party Check',  width:'AUTO',filterable:true},
+                    {columnID:'EXISTINGPARTYNUM', columnName:'Existing party #', width:'AUTO',filterable:true},
+                    {columnID:'UNDER_CONSTRUCTION', columnName:'UC',  width:'AUTO', filterable:true},
+                    {columnID:'UNDER_CONSTRUCTION_DATE', columnName:'UC Date', width:'AUTO', filter:'formatDate'},
+                    {columnID:'OUT_OF_BUSINESS', columnName:'OOB', width:'AUTO'},
+                    {columnID:'OUT_OF_BUSINESS_DATE', columnName:'OOB Date', filter:'formatDate', width:'AUTO'},
+                    {columnID:'ADDRESS1', columnName:'Addr Line1', width:'AUTO',filterable:true},
+                    {columnID:'CITY', columnName:'City', width:'70', filterable:true},
+                    {columnID:'STATE', columnName:'State', width:'30', filterable:true},
+                    {columnID:'COUNTY', columnName:'County', width:'40',filterable:true},
+                    {columnID:'COUNTRY', columnName:'Country', width:'40',filterable:true},
+                    {columnID:'POSTAL_CODE', columnName:'Postal Code', width:'50',filterable:true}
+                    ]"></cdk-table>
 </body>
 </html>

@@ -181,7 +181,7 @@ var NVL = function NVL(val, replc) {
                     priority: '@', /*sort on the column according to this priority*/
                     offsetRowHeight: '@', /*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
                     rowHeight: '@', /*to give height to the row*/
-                    priKey: '@', /*Primary Key for the selection of the row, the checkbox in the first column in every row*/
+                    selected: '=?', /*Exposes the selected items*/
                     menuOptions: '=?', /*Add custom menu options and methods*/
                 },
                 link: function cdkTableLink(scope) {
@@ -207,7 +207,7 @@ var NVL = function NVL(val, replc) {
                     scope.offsetRowHeight = scope.offsetRowHeight === undefined ? 0 : scope.offsetRowHeight;
                     scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
                     scope.rowHeight = scope.rowHeight === undefined ? 21 : scope.rowHeight;
-                    scope.priKey = scope.priKey === undefined ? '' : scope.priKey;
+                    scope.selected = scope.selected === undefined ? '' : scope.selected;
                     scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
                     scope.showColMenu = scope.showColMenu === undefined ? true : scope.showColMenu;
                     scope.menuOptions = scope.menuOptions === undefined ? [] : scope.menuOptions;
@@ -338,14 +338,11 @@ var NVL = function NVL(val, replc) {
                                             });
                                         }
                                         if (gridApi.selection) {
-                                            gridApi.selection.on.rowSelectionChanged($scope, function (row) {
-                                                $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
+                                            gridApi.selection.on.rowSelectionChanged($scope, function () {
+                                                $scope.selected = gridApi.selection.getSelectedRows();
                                             });
-                                            gridApi.selection.on.rowSelectionChangedBatch($scope, function (rows) {
-                                                for (var i = 0; i < rows.length; i++) {
-                                                    var row = rows[i];
-                                                    $scope.data.findOne(row.entity[$scope.priKey], $scope.priKey).isSelected = row.isSelected;
-                                                }
+                                            gridApi.selection.on.rowSelectionChangedBatch($scope, function () {
+                                                $scope.selected = gridApi.selection.getSelectedRows();
                                             });
                                         }
                                         gridApi.core.on.filterChanged($scope, function () {

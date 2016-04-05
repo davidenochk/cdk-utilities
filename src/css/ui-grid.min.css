@@ -995,18 +995,22 @@ input[type=text].ui-grid-filter-input:hover {
 }
 
 input[type=text].ui-grid-filter-input {
-    height: 18px;
-    line-height: 1
+    height: 18px
 }
 
 .ui-grid-filter-container .ui-grid-filter-button [class^=ui-grid-icon] {
-    margin-top: -6px;
-    margin-right: -9px;
+    margin-top: -.5em;
+    margin-right: -.8em;
     background-color: #fff;
-    right: 12px;
+    right: 1em;
+    line-height: 1em;
     bottom: 3px;
     opacity: 1;
     height: 0
+}
+
+input[type=text].ui-grid-filter-input {
+    line-height: 1
 }
 
 [class*=" ui-grid-icon"]:before, [class^=ui-grid-icon]:before {
@@ -2063,7 +2067,7 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
 .cdk-multi-wrap, .multi-selected {
     position: relative;
     font-size: .9em;
-    font-family: RobotoDraft;
+    font-family: RobotoDraft
 }
 
 .btnCheckall {
