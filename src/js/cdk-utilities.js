@@ -734,10 +734,10 @@ var NVL = function NVL(val, replc) {
          @method cdkMultiSelect directive
          @description to be able to select multiple options from the dropdowns
          */
-        .directive('cdkMultiSelect', function () {
+        .directive('cdkMultiSelect', function ($templateCache) {
             return {
                 restrict: 'EA',
-                templateUrl: '../../templates/cdkmultiselect.html',
+                template: $templateCache.get('cdkmultiselect.html'),
                 scope: {
                     // TODO: Write the options
                     data: '=in',
@@ -993,4 +993,22 @@ var NVL = function NVL(val, replc) {
                 '</div></div>'
             }
         })
+        .directive('cdkHeader', function ($templateCache) {
+            return {
+                restrict: 'EA',
+                scope: {
+                    userName: '@',
+                    userRole: '@',
+                    appTitle: '@',
+                    pageTitle: '@',
+                    hostName: '@',
+                    logoUrl: '@'
+                },
+                template: $templateCache.get('cdkheader.html')
+            }
+        })
+        .run(function ($templateCache) {
+            $templateCache.put('cdkmultiselect.html', '<div class="cdk-multi-wrap" ng-mouseleave="showDrop=false">        <input type="text" readonly="readonly" data-ng-click="ToggleDropdown()" value="{{displayText}}"/>        <span class="select-icon" data-ng-click="ToggleDropdown()">▼</span>    <div class="select-count">{{all ? data.length : data.findMatch(\'selected\',true).length}}</div>    <div class="cdk-multi-drop" ng-class="showDrop?\'expand\':\'collapse\'">        <input ng-show="search" class="search-input" ng-model="searchString" type="text" placeholder="Search">        <input type="button" class="select-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'checkall\')"    ng-disabled="checkAll"    value="✔" title="Check All"/>        <input type="button" class="unselect-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'uncheckall\')"    ng-disabled="uncheckAll"    value="X" title="Uncheck All"/>        <div class="values">        <ul>        <li title="{{val[tip]}}" ng-class="val.selected?\'check\':\'uncheck\'" ng-show="val.shown"    ng-repeat="val in data track by $index" value="val[prop]"    ng-click="CheckIt($index)">        {{val[text]}}    </li>    </ul>    </div>    </div>    </div>    ')
+            $templateCache.put('cdkheader.html', '<div class="cdk-header-wrap"><img id="Image1" data-ng-src="{{logoUrl}}" class="header-logo" /><span class="app-title">{{appTitle}}</span><div class="header-user-wrap"><span class="header-user-name">{{userName}}</span><span class="header-user-role">{{userRole}}</span><span class="header-server-name">{{hostName}}</span></div><div><div class="page-title">{{pageTitle}}</div></div></div>');
+        });
 })(angular);

@@ -1060,6 +1060,10 @@ span[id$=sortdir-text] {
     width: 20px
 }
 
+body {
+    margin: 0
+}
+
 .hyperlink {
     text-decoration: none;
     color: #00f;
@@ -1750,6 +1754,11 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
     pointer-events: all
 }
 
+.cdk-header-wrap {
+    background-color: #9acfea;
+    position: relative
+}
+
 .header {
     display: block;
     background-color: #EEE;
@@ -1766,12 +1775,11 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
 
 .app-title {
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 400;
     width: 100%;
     position: absolute;
     display: block;
     text-align: center;
-    letter-spacing: 2px;
     margin-top: -3px;
     color: #444;
     top: 10px
@@ -1785,11 +1793,6 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
     margin-bottom: 0
 }
 
-.header-user-wrap, .page-title {
-    position: absolute;
-    font-weight: 400
-}
-
 .page-title-wrap md-icon {
     margin-top: 3px
 }
@@ -1797,9 +1800,11 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
 .page-title {
     display: block;
     text-align: center;
+    position: absolute;
     width: 100%;
     font-size: 16px;
-    color: #fff;
+    font-weight: 600;
+    color: #555;
     margin-top: -25px;
     z-index: 2;
     text-transform: uppercase;
@@ -1808,8 +1813,10 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
 }
 
 .header-user-wrap {
+    position: absolute;
     right: 10px;
-    top: 0
+    bottom: 5px;
+    font-weight: 400
 }
 
 .header-user-wrap .header-user-name {
