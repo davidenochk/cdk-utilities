@@ -1019,10 +1019,6 @@ input[type=text].ui-grid-filter-input {
     margin-left: .2em
 }
 
-.ui-grid-row:hover .ui-grid-cell {
-    background-color: #FFFF81 !important
-}
-
 div.ui-grid-cell input[type=checkbox] {
     margin: 0 !important;
     width: auto
@@ -1030,7 +1026,7 @@ div.ui-grid-cell input[type=checkbox] {
 
 span[id$=sortdir-text] {
     position: absolute;
-    top: 8px;
+    top: 9px;
     right: 0;
     font-size: 12px;
     width: 16px;
@@ -1084,10 +1080,6 @@ body {
 
 .center, .progress-wrapper {
     text-align: center
-}
-
-.highlightRow, .hoverBg:hover {
-    background-color: #FFFF81 !important
 }
 
 cdk-table {
@@ -1762,7 +1754,8 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
 .header {
     display: block;
     background-color: #EEE;
-    min-height: 70px
+    min-height: 70px;
+    position: relative
 }
 
 .header-logo {
@@ -1850,10 +1843,6 @@ select[multiple].ui-grid-pager-row-count-picker select, textarea.ui-grid-pager-r
     color: #006400;
     line-height: 16px;
     display: block
-}
-
-.highlightRow, .highlightRow td {
-    background-color: #ff9
 }
 
 .CDK_grid {

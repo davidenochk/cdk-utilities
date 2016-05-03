@@ -72,10 +72,12 @@ var NVL = function NVL(val, replc) {
         })
         .filter('formatDate', function ($filter) {
             return function (val) {
-                var aDate = val;
+                var aDate;
+                if (val)
+                    aDate = new Date(val);
                 if (aDate && aDate != 'Invalid Date') {
+                    aDate = new Date(aDate.getTime() + aDate.getTimezoneOffset() * 60000);
                     var dt = $filter('date')(aDate, 'MM/dd/yyyy');
-                    //console.log(aDate, dt);
                     var month = dt.substring(0, dt.indexOf('/'));
                     var day = dt.substring(dt.indexOf('/') + 1, dt.lastIndexOf('/'));
                     var year = dt.substring(dt.lastIndexOf('/') + 1, dt.length);
@@ -140,7 +142,7 @@ var NVL = function NVL(val, replc) {
             return {
                 restrict: 'E',
                 //template: '<div class="progress2-wrap"><div class="progress2"><md-progress-circular md-mode="indeterminate"></md-progress-circular></div></div>',
-                template: '<div class="progress-wrapper">' +
+                template: '<div class="progress-wrapper" ng-show="progressObj.count">' +
                 '<div class="progress">Loading<span class="dots">...</span></div></div>',
                 controller: function ($scope, progress) {
                     $scope.progressObj = progress.GetProgressObj();
@@ -166,11 +168,13 @@ var NVL = function NVL(val, replc) {
                     //showCheck: '=?',/*show check column at the start so that it can be selected*/
                     editRow: '&', /*handler for editing the row*/
                     headerOffset: '=?', /*header offset value*/
+                    showGridMenu: '=?',
                     autoHeightOffset: '=?', /*auto height offset calculation*/
                     getTemplate: '&', /*for getting the templates*/
                     storageKeyPrefix: '=?', /*For localstorage, to save the column definitions*/
                     fullRowSelec: '=?', /*to enable full row selection by clicking anywhere on the row*/
                     showColMenu: '=?', /*to show or hide the column menus*/
+                    showGridFoot: '=?',
                     class: '=?', /*add the cell class*/
                     methods: '=?', /*map external methods*/
                     selectRow: '=?', /*select the rows on which you want to do some kind of processing*/
@@ -194,6 +198,7 @@ var NVL = function NVL(val, replc) {
                     scope.maxWidth = scope.maxWidth == undefined ? 'AUTO' : scope.maxWidth;
                     scope.maxHeight = scope.maxHeight == undefined ? 'AUTO' : scope.maxHeight;
                     scope.showEdit = scope.showEdit == undefined ? false : scope.showEdit;
+                    scope.showGridMenu = scope.showGridMenu == undefined ? true : scope.showGridMenu;
                     //scope.storageKeyPrefix = scope.storageKeyPrefix == undefined ? '' : scope.storageKeyPrefix;
                     //scope.showCheck = scope.showCheck == undefined ? false : scope.showCheck;
                     scope.selectRow = scope.selectRow == undefined ? true : scope.selectRow;
@@ -203,6 +208,7 @@ var NVL = function NVL(val, replc) {
                     scope.class = scope.class == undefined ? '' : scope.class;
                     scope.methods = scope.methods == undefined ? {} : scope.methods;
                     scope.showColumnFooter = scope.showFoots === undefined ? false : scope.showFoots;
+                    scope.showGridFoot = scope.showGridFoot === undefined ? false : scope.showGridFoot;
                     scope.horScroll = scope.horScroll === undefined ? true : scope.horScroll;
                     scope.offsetRowHeight = scope.offsetRowHeight === undefined ? 0 : scope.offsetRowHeight;
                     scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
@@ -289,6 +295,7 @@ var NVL = function NVL(val, replc) {
                                 json.sortCellFiltered = col.sortCellFiltered;
                                 json.suppressRemoveSort = col.suppressRemoveSort;
                                 json.visible = col.visible;
+                                json.footerCellTemplate = col.footerCellTemplate;
                                 json.width = col.width;
                                 columnDefs.push(json);
                             }
@@ -316,7 +323,7 @@ var NVL = function NVL(val, replc) {
                                     rowHeight: parseInt($scope.rowHeight),
                                     minWidth: $scope.minWidth,
                                     enableFiltering: true,
-                                    showGridFooter: true,
+                                    showGridFooter: $scope.showGridFoot,
                                     showColumnFooter: $scope.showColumnFooter,
                                     columnFooterHeight: 20,
                                     exporterMenuPdf: false,
@@ -353,7 +360,7 @@ var NVL = function NVL(val, replc) {
                                         });
                                     }
                                 };
-                                $scope.gridOptions.enableGridMenu = true;
+                                $scope.gridOptions.enableGridMenu = $scope.showGridMenu;
                                 if ($scope.export) {
                                     $scope.gridOptions.exporterMenuCsv = true;
                                 }
@@ -379,12 +386,14 @@ var NVL = function NVL(val, replc) {
                     var ProcessDataForCorrectDates = function ProcessDataForCorrectDates(data) {
                         //console.log(data);
                         var options = $scope.options;
-                        for (var i = 0; i < options.length; i++) {
-                            //For each type of date, loop through data and convert value to date
-                            if (options[i].type && options[i].type.toUpperCase() === 'DATE') {
-                                for (var j = 0; j < data.length; j++) {
-                                    if (data[j][options[i].columnID])
-                                        data[j][options[i].columnID] = new Date(data[j][options[i].columnID]);
+                        if (options && options.length) {
+                            for (var i = 0; i < options.length; i++) {
+                                //For each type of date, loop through data and convert value to date
+                                if (options[i].type && options[i].type.toUpperCase() === 'DATE') {
+                                    for (var j = 0; j < data.length; j++) {
+                                        if (data[j][options[i].columnID])
+                                            data[j][options[i].columnID] = new Date(data[j][options[i].columnID]);
+                                    }
                                 }
                             }
                         }
@@ -680,36 +689,38 @@ var NVL = function NVL(val, replc) {
                     var LoadColumnOption = function LoadColumnOption(keys, options, columnOptions) {
                         //check if there is a columnID given in the options.
                         //If there is, get the parameters from the options
-                        for (var i = 0; i < keys.length; i++) {
-                            //find if the key is in the options
-                            var colOpts = {};
-                            if (options.findAll(keys[i].columnID, 'columnID').length) {
-                                colOpts = keys[i].columnName ? keys[i] : options.findAll(keys[i].columnID, 'columnID')[0];
+                        if (keys && options && columnOptions) {
+                            for (var i = 0; i < keys.length; i++) {
+                                //find if the key is in the options
+                                var colOpts = {};
+                                if (options.findAll(keys[i].columnID, 'columnID').length) {
+                                    colOpts = keys[i].columnName ? keys[i] : options.findAll(keys[i].columnID, 'columnID')[0];
+                                }
+                                //if there is get the properties from there
+                                //else put the default values given for the properties
+                                var key = keys[i];
+                                var option = {};
+                                option.columnID = key.columnID;
+                                option.columnName = colOpts.columnName ? (colOpts.columnName.length ? colOpts.columnName : '') : (key.columnName ? key.columnName : key.columnID.toUpperCase());
+                                option.width = colOpts.width ? colOpts.width : (key.width ? key.width : 'AUTO');
+                                option.enableSorting = colOpts.sortable != undefined ? colOpts.sortable : true;
+                                option.filter = colOpts.filter ? colOpts.filter : '';
+                                option.filterCellFiltered = true;
+                                option.visible = !colOpts.hide;
+                                option.class = colOpts.class ? colOpts.class : '';
+                                option.filterable = colOpts.filterable != undefined ? colOpts.filterable : false;
+                                option.template = colOpts.template ? colOpts.template : '';
+                                option.type = colOpts.type ? colOpts.type : '';
+                                option.footTemplate = colOpts.footTemplate ? colOpts.footTemplate : '';
+                                option.headTemplate = colOpts.headTemplate ? colOpts.headTemplate : '';
+                                option.defSort = colOpts.defSort ? colOpts.defSort : '';
+                                option.priority = colOpts.priority ? colOpts.priority : '';
+                                option.enablePinning = colOpts.enablePinning ? colOpts.enablePinning : false;
+                                option.pinnedLeft = colOpts.pinnedLeft ? colOpts.pinnedLeft : false;
+                                option.pinnedRight = colOpts.pinnedRight ? colOpts.pinnedRight : false;
+                                option.cellTooltip = colOpts.cellTooltip ? colOpts.cellTooltip : false;
+                                columnOptions.push(option);
                             }
-                            //if there is get the properties from there
-                            //else put the default values given for the properties
-                            var key = keys[i];
-                            var option = {};
-                            option.columnID = key.columnID;
-                            option.columnName = colOpts.columnName ? (colOpts.columnName.length ? colOpts.columnName : '') : (key.columnName ? key.columnName : key.columnID.toUpperCase());
-                            option.width = colOpts.width ? colOpts.width : (key.width ? key.width : 'AUTO');
-                            option.enableSorting = colOpts.sortable != undefined ? colOpts.sortable : true;
-                            option.filter = colOpts.filter ? colOpts.filter : '';
-                            option.filterCellFiltered = true;
-                            option.visible = !colOpts.hide;
-                            option.class = colOpts.class ? colOpts.class : '';
-                            option.filterable = colOpts.filterable != undefined ? colOpts.filterable : false;
-                            option.template = colOpts.template ? colOpts.template : '';
-                            option.type = colOpts.type ? colOpts.type : '';
-                            option.footTemplate = colOpts.footTemplate ? colOpts.footTemplate : '';
-                            option.headTemplate = colOpts.headTemplate ? colOpts.headTemplate : '';
-                            option.defSort = colOpts.defSort ? colOpts.defSort : '';
-                            option.priority = colOpts.priority ? colOpts.priority : '';
-                            option.enablePinning = colOpts.enablePinning ? colOpts.enablePinning : false;
-                            option.pinnedLeft = colOpts.pinnedLeft ? colOpts.pinnedLeft : false;
-                            option.pinnedRight = colOpts.pinnedRight ? colOpts.pinnedRight : false;
-                            option.cellTooltip = colOpts.cellTooltip ? colOpts.cellTooltip : false;
-                            columnOptions.push(option);
                         }
                         //console.log(columnOptions);
                         return columnOptions;
@@ -997,18 +1008,22 @@ var NVL = function NVL(val, replc) {
             return {
                 restrict: 'EA',
                 scope: {
-                    userName: '@',
-                    userRole: '@',
-                    appTitle: '@',
-                    pageTitle: '@',
-                    hostName: '@',
-                    logoUrl: '@'
+                    userName: '=',
+                    userRole: '=',
+                    userRoles: '=?',
+                    appTitle: '=',
+                    pageTitle: '=',
+                    hostName: '=?',
+                    logoUrl: '=',
+                    roleChanged: '=?'
                 },
-                template: $templateCache.get('cdkheader.html')
+                template: $templateCache.get('cdkheader.html'),
+                controller: function ($scope) {
+                }
             }
         })
         .run(function ($templateCache) {
-            $templateCache.put('cdkmultiselect.html', '<div class="cdk-multi-wrap" ng-mouseleave="showDrop=false">        <input type="text" readonly="readonly" data-ng-click="ToggleDropdown()" value="{{displayText}}"/>        <span class="select-icon" data-ng-click="ToggleDropdown()">▼</span>    <div class="select-count">{{all ? data.length : data.findMatch(\'selected\',true).length}}</div>    <div class="cdk-multi-drop" ng-class="showDrop?\'expand\':\'collapse\'">        <input ng-show="search" class="search-input" ng-model="searchString" type="text" placeholder="Search">        <input type="button" class="select-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'checkall\')"    ng-disabled="checkAll"    value="✔" title="Check All"/>        <input type="button" class="unselect-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'uncheckall\')"    ng-disabled="uncheckAll"    value="X" title="Uncheck All"/>        <div class="values">        <ul>        <li title="{{val[tip]}}" ng-class="val.selected?\'check\':\'uncheck\'" ng-show="val.shown"    ng-repeat="val in data track by $index" value="val[prop]"    ng-click="CheckIt($index)">        {{val[text]}}    </li>    </ul>    </div>    </div>    </div>    ')
-            $templateCache.put('cdkheader.html', '<div class="cdk-header-wrap"><img id="Image1" data-ng-src="{{logoUrl}}" class="header-logo" /><span class="app-title">{{appTitle}}</span><div class="header-user-wrap"><span class="header-user-name">{{userName}}</span><span class="header-user-role">{{userRole}}</span><span class="header-server-name">{{hostName}}</span></div><div><div class="page-title">{{pageTitle}}</div></div></div>');
+            $templateCache.put('cdkmultiselect.html', '<div class="cdk-multi-wrap" ng-mouseleave="showDrop=false"><input type="text" readonly="readonly" data-ng-click="ToggleDropdown()" value="{{displayText}}"/>        <span class="select-icon" data-ng-click="ToggleDropdown()">▼</span>    <div class="select-count">{{all ? data.length : data.findMatch(\'selected\',true).length}}</div>    <div class="cdk-multi-drop" ng-class="showDrop?\'expand\':\'collapse\'">        <input ng-show="search" class="search-input" ng-model="searchString" type="text" placeholder="Search">        <input type="button" class="select-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'checkall\')"    ng-disabled="checkAll"    value="✔" title="Check All"/>        <input type="button" class="unselect-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'uncheckall\')"    ng-disabled="uncheckAll"    value="X" title="Uncheck All"/>        <div class="values">        <ul>        <li title="{{val[tip]}}" ng-class="val.selected?\'check\':\'uncheck\'" ng-show="val.shown"    ng-repeat="val in data track by $index" value="val[prop]"    ng-click="CheckIt($index)">        {{val[text]}}    </li>    </ul>    </div>    </div>    </div>    ')
+            $templateCache.put('cdkheader.html', '<div class="cdk-header-wrap"><img id="Image1" data-ng-src="{{logoUrl}}" class="header-logo" /><span class="app-title">{{appTitle}}</span><div class="header-user-wrap"><span class="header-user-name">{{userName}}</span><span class="header-user-role" ng-if="(! userRoles.length)||(userRoles.length == 1)">{{userRole}}</span><select ng-change="roleChanged()" ng-options="rol for rol in userRoles" ng-model="userRole" ng-hide="(! userRoles.length)||(userRoles.length < 2)"></select> <span class="header-server-name">{{hostName}}</span></div><div><div class="page-title">{{pageTitle}}</div></div></div>');
         });
 })(angular);
