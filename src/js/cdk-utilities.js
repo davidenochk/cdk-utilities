@@ -240,6 +240,7 @@ const NVL = function NVL(val, replc) {
                     scope.selectRow = scope.selectRow == undefined ? true : scope.selectRow;
                     scope.filterable = scope.filterable == undefined ? false : scope.filterable;
                     scope.headerClass = scope.headerClass == undefined ? '' : scope.headerClass;
+                    scope.headerCellClass = scope.headerCellClass == undefined ? '' : scope.headerCellClass;
                     scope.headerOffset = scope.headerOffset == undefined ? 20 : scope.headerOffset;
                     scope.autoHeightOffset = scope.autoHeightOffset == undefined ? 30 : scope.autoHeightOffset;
                     scope.class = scope.class == undefined ? '' : scope.class;
@@ -296,6 +297,7 @@ const NVL = function NVL(val, replc) {
                                 json.headerCellClass = col.headerCellClass;
                                 json.headerCellFilter = col.headerCellFilter;
                                 json.headerCellTemplate = col.headerCellTemplate;
+                                json.headerClass = col.headerClass;
                                 json.sort = col.sort;
                                 json.enablePinning = col.enablePinning;
                                 json.pinnedLeft = col.pinnedLeft;
@@ -336,6 +338,7 @@ const NVL = function NVL(val, replc) {
                                     exporterMenuCsv: false,
                                     enableColumnMenu: $scope.showColMenu,
                                     enableFullRowSelection: $scope.fullRowSelec,
+                                    headerClass: $scope.headerClass,
                                     enableHorizontalScrollbar: $scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
                                     rowTemplate: '<div data-ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
                                     onRegisterApi: function (gridApi) {
