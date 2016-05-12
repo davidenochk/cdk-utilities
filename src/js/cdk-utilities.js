@@ -633,7 +633,7 @@ const NVL = function NVL(val, replc) {
                         // TODO: Read the data first object in array, get the keys of the data,
                         //       for each key find if it's in options, if there get the options
 
-                        // TODO: Add Edit Column Definition
+                        // TODO: Add Edit Column Definitio
                         if ($scope.showEdit) {
                             columnOptions.push({
                                 columnID: 'EDIT',
