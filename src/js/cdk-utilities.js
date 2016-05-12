@@ -712,6 +712,7 @@ const NVL = function NVL(val, replc) {
                                 option.pinnedRight = colOpts.pinnedRight ? colOpts.pinnedRight : false;
                                 option.cellTooltip = colOpts.cellTooltip ? colOpts.cellTooltip : false;
                                 columnOptions.push(option);
+                                //Dummy ccomment
                             }
                         }
                         //console.log(columnOptions);
