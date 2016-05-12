@@ -999,7 +999,7 @@ input[type=text].ui-grid-filter-input {
 }
 
 .ui-grid-filter-container .ui-grid-filter-button [class^=ui-grid-icon] {
-    margin-top: -.5em;
+    margin-top: -.4em;
     margin-right: -.8em;
     background-color: #fff;
     right: 1em;
