@@ -6,11 +6,6 @@
             font-family: RobotoDraft;
             font-size: 13px;
         }
-
-        .ui-grid-child-row {
-            height: auto;
-            width: 100%;
-        }
     </style>
     <meta charset="UTF-8">
     <title>CDK Tree View Grid</title>
@@ -22,7 +17,18 @@
     <script src="./app.js" type="application/javascript"></script>
 </head>
 <body data-ng-controller="demoController">
-<div ui-grid="gridOptions" data-ui-grid-resize-columns=""></div>
+<!--<div ui-grid="gridOptions" data-ui-grid-resize-columns=""></div>-->
+<cdk-table id="CCFGrid"
+           model="data"
+           methods="{'LoadChild':LoadChild}"
+           options="options"
+           auto-generate-columns="true"
+           get-template="GetTemplate(value)"
+           full-row-selec="false"
+           values="{'childData':childData}"
+           select-row="false"
+           max-width="700"
+></cdk-table>
 <progress-bar></progress-bar>
 </body>
 </html>

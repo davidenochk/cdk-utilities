@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+<head>
+    <style>
+        html, body {
+            font-family: RobotoDraft;
+            font-size: 13px;
+        }
+
+        .popover {
+            width: auto;
+            position: relative;
+        }
+
+        .popover-wrap {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: auto;
+            border: 1px solid #DDD;
+        }
+
+        .popover-wrap .title {
+            font-weight: bold;
+            -webkit-border-radius: 3px 3px 0 0;
+            -moz-border-radius: 3px 3px 0 0;
+            border-radius: 3px 3px 0 0;
+            white-space: nowrap;
+            background-color: #EEE;
+            padding: 3px 5px;
+        }
+
+        ul {
+            margin: 0;
+            padding: 3px 5px;
+            list-style: none;
+        }
+
+        .popover a {
+            text-decoration: none;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>CDK Popover</title>
+    <link href="../../css/ui-grid.min.css" rel="stylesheet"/>
+    <script src="../../../node_modules/angular-ui-grid/node_modules/angular/angular.min.js"
+            type="application/javascript"></script>
+    <script src="../../../ui-grid/dist/release/ui-grid.js" type="application/javascript"></script>
+    <script src="../../js/cdk-utilities.js" type="application/javascript"></script>
+    <script src="./app.js" type="application/javascript"></script>
+</head>
+<body data-ng-controller="demoController">
+<cdk-popover title="'CDK Popover Test'" list="list" template="template"></cdk-popover>
+</body>
+</html>

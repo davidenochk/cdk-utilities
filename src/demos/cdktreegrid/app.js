@@ -7,130 +7,24 @@
         .controller('demoController', function ($scope, $q, data, progress) {
             $scope.gridOptions = [];
             $scope.childGridOptions = [];
+            //$scope.childData = {};
             $scope.LoadChild = function (row) {
                 row.entity.opened = !row.entity.opened;
-                row.entity.child = {};
-                progress.incCnt();
+                //row.entity.child = {};
                 if (!row.entity.opened)
                     row.entity.childData = undefined;
                 else {
-                    $scope.childOptions = [{columnID: 'CITY', columnName: 'City Name'}, {
-                        columnID: 'STATE',
-                        columnName: 'State Name'
+                    row.entity.childOptions = [
+                        {columnID: 'CITY', columnName: 'City Name'},
+                        {
+                            columnID: 'STATE', columnName: 'State Name'
                     }];
-                    $scope.childData = [{
-                        "MANUFACTURER_NAME": "AGCO",
-                        "SEGMENT_CODE": "PFW",
-                        "PARTY_NUMBER": "889803",
-                        "PARTY_NAME": "ARIZONA PRODUCTION MACHINERY & SUPPLY, INC.",
-                        "LOCATIONTYPE": "Agriculture",
-                        "COBALT_ACCOUNT_NUMBER": null,
-                        "SINGLE_POINT": "F",
-                        "CORPORATION_NAME": null,
-                        "GROUP_NAME": "Empire Southwest LLC",
-                        "DISTRICT_NAME": null,
-                        "SALES_REGION": "PFW",
-                        "EXISTINGPARTYCHECK": "F",
-                        "EXISTINGPARTYNUM": null,
-                        "UNDER_CONSTRUCTION": "F",
-                        "UNDER_CONSTRUCTION_DATE": null,
-                        "OUT_OF_BUSINESS": "F",
-                        "OUT_OF_BUSINESS_DATE": null,
-                        "INSTALLEDDMSCDKCLIENT": "F",
-                        "ADDRESS1": "26403 W Hwy 85",
-                        "ADDRESS2": null,
-                        "CITY": "BUCKEYE",
-                        "STATE": "AZ",
-                        "POSTAL_CODE": "85326",
-                        "COUNTY": "MARICOPA",
-                        "PROVINCE": null,
-                        "COUNTRY": "US",
-                        "IDENTIFYING_ADDRESS_FLAG": "Y"
-                    }, {
-                        "MANUFACTURER_NAME": "AGCO",
-                        "SEGMENT_CODE": "PFW",
-                        "PARTY_NUMBER": "893133",
-                        "PARTY_NAME": "F. V. Pierlot & Son Ltd",
-                        "LOCATIONTYPE": "Agriculture",
-                        "COBALT_ACCOUNT_NUMBER": null,
-                        "SINGLE_POINT": "T",
-                        "CORPORATION_NAME": null,
-                        "GROUP_NAME": null,
-                        "DISTRICT_NAME": null,
-                        "SALES_REGION": "PFW",
-                        "EXISTINGPARTYCHECK": "F",
-                        "EXISTINGPARTYNUM": null,
-                        "UNDER_CONSTRUCTION": "F",
-                        "UNDER_CONSTRUCTION_DATE": null,
-                        "OUT_OF_BUSINESS": "F",
-                        "OUT_OF_BUSINESS_DATE": null,
-                        "INSTALLEDDMSCDKCLIENT": "F",
-                        "ADDRESS1": "Hwy 35 S",
-                        "ADDRESS2": null,
-                        "CITY": "Nipawin",
-                        "STATE": null,
-                        "POSTAL_CODE": "S0E 1E0",
-                        "COUNTY": null,
-                        "PROVINCE": "SK",
-                        "COUNTRY": "CA",
-                        "IDENTIFYING_ADDRESS_FLAG": "Y"
-                    }, {
-                        "MANUFACTURER_NAME": "AGCO",
-                        "SEGMENT_CODE": "PFW",
-                        "PARTY_NUMBER": "893526",
-                        "PARTY_NAME": "Lansdowne-Moody Company",
-                        "LOCATIONTYPE": "Agriculture",
-                        "COBALT_ACCOUNT_NUMBER": null,
-                        "SINGLE_POINT": "F",
-                        "CORPORATION_NAME": null,
-                        "GROUP_NAME": "Lansdowne-Moody Co. Inc.",
-                        "DISTRICT_NAME": null,
-                        "SALES_REGION": "PFW",
-                        "EXISTINGPARTYCHECK": "F",
-                        "EXISTINGPARTYNUM": null,
-                        "UNDER_CONSTRUCTION": "F",
-                        "UNDER_CONSTRUCTION_DATE": null,
-                        "OUT_OF_BUSINESS": "F",
-                        "OUT_OF_BUSINESS_DATE": null,
-                        "INSTALLEDDMSCDKCLIENT": "F",
-                        "ADDRESS1": "12288 US 59",
-                        "ADDRESS2": null,
-                        "CITY": "SPLENDORA",
-                        "STATE": "TX",
-                        "POSTAL_CODE": "77372",
-                        "COUNTY": "MONTGOMERY",
-                        "PROVINCE": null,
-                        "COUNTRY": "US",
-                        "IDENTIFYING_ADDRESS_FLAG": "Y"
-                    }, {
-                        "MANUFACTURER_NAME": "AGCO",
-                        "SEGMENT_CODE": "PFW",
-                        "PARTY_NUMBER": "893748",
-                        "PARTY_NAME": "North Star Hardware & Implement Co",
-                        "LOCATIONTYPE": "Agriculture",
-                        "COBALT_ACCOUNT_NUMBER": null,
-                        "SINGLE_POINT": "T",
-                        "CORPORATION_NAME": null,
-                        "GROUP_NAME": null,
-                        "DISTRICT_NAME": null,
-                        "SALES_REGION": "Division",
-                        "EXISTINGPARTYCHECK": "F",
-                        "EXISTINGPARTYNUM": null,
-                        "UNDER_CONSTRUCTION": "F",
-                        "UNDER_CONSTRUCTION_DATE": null,
-                        "OUT_OF_BUSINESS": "F",
-                        "OUT_OF_BUSINESS_DATE": null,
-                        "INSTALLEDDMSCDKCLIENT": "F",
-                        "ADDRESS1": "169 US Rte 127",
-                        "ADDRESS2": null,
-                        "CITY": "North Star",
-                        "STATE": "OH",
-                        "POSTAL_CODE": "45350",
-                        "COUNTY": "DARKE",
-                        "PROVINCE": null,
-                        "COUNTRY": "US",
-                        "IDENTIFYING_ADDRESS_FLAG": "Y"
-                    }];
+                    row.entity.childData = angular.copy($scope.data);
+                }
+            };
+            $scope.GetTemplate = function (temp) {
+                if (temp.toUpperCase() === 'OPENCHILD') {
+                    return '<span style="cursor:pointer;" ng-click="grid.appScope.methods.LoadChild(row)">{{row.entity.opened ? \'-\' : \'+\'}}</span>';
                 }
             };
             $q.when(data.GetData()).then(function (response) {
@@ -142,18 +36,25 @@
                         {field: 'COUNTY', name: 'County'}
                     ]
                 };
-                $scope.gridOptions = {
-                    data: response,
-                    columnDefs: [
-                        {
-                            field: 'Open',
-                            name: 'OPEN',
-                            cellTemplate: '<span style="cursor:pointer;" ng-click="grid.appScope.LoadChild(row)">{{row.entity.opened ? \'-\' : \'+\'}}</span>'
-                        },
-                        {field: 'PARTY_NUMBER', name: 'Party Number'},
-                        {field: 'MANUFACTURER_NAME', name: 'Manufacturer Name'}
-                    ]
-                };
+                $scope.data = response;
+                //$scope.gridOptions = {
+                //    data: response,
+                //    columnDefs: [
+                //        {
+                //            field: 'Open',
+                //            name: 'OPEN',
+                //            cellTemplate: '<span style="cursor:pointer;" ng-click="grid.appScope.LoadChild(row)">{{row.entity.opened ? \'-\' : \'+\'}}</span>'
+                //        },
+                //        {field: 'PARTY_NUMBER', name: 'Party Number'},
+                //        {field: 'MANUFACTURER_NAME', name: 'Manufacturer Name'}
+                //    ]
+                //};
+                $scope.options = [
+                    {columnID: 'Open', columnName: 'OPEN', template: 'OpenChild'},
+                    {columnID: 'PARTY_NUMBER', columnName: 'Party Number'},
+                    {columnID: 'MANUFACTURER_NAME', columnName: 'Manufacturer Name'},
+                    {columnID: 'LOCATIONTYPE', columnName: 'Location Type'}
+                ];
             });
         })
         .service('data', function ($q) {

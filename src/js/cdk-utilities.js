@@ -1,4 +1,26 @@
 "use strict";
+/**
+ * Prototype on array to get the distinct elements from the array
+ * @returns {Array}
+ */
+Array.prototype.distinct = function () {
+    var n = {}, r = [];
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] != null && this[i] != '') {
+            if (!n[this[i]]) {
+                n[this[i]] = true;
+                //r.push(this[i]);
+            }
+        }
+    }
+    return r;
+};
+/**
+ * Prototype on array to return all the matches in the given array with value vl in column with key c
+ * @param vl
+ * @param c
+ * @returns {Array}
+ */
 Array.prototype.findAll = function (vl, c) {
     var v = [];
     for (var i = 0; i < this.length; i++) {
@@ -9,7 +31,7 @@ Array.prototype.findAll = function (vl, c) {
     return v;
 };
 /**
- *
+ * Prototype on array to return one match
  * @param vl
  * @param c
  * @returns {*}
@@ -17,12 +39,19 @@ Array.prototype.findAll = function (vl, c) {
 Array.prototype.findOne = function (vl, c) {
     var v = [];
     for (var i = 0; i < this.length; i++) {
-        //get the array item
         if (this[i][c] == vl)
             return this[i];
     }
     return v;
 };
+/**
+ * Prototype on array to find the first match in the given array which has value @str in column with key @prop
+ * By default it will send @all
+ * @param prop
+ * @param str
+ * @param all
+ * @returns {*}
+ */
 Array.prototype.findMatch = function (prop, str, all) {
     if (this) {
         var arr = [];
@@ -33,8 +62,19 @@ Array.prototype.findMatch = function (prop, str, all) {
         return arr;
     }
     return all;
-}
-var weekNames = {
+};
+/**
+ * Returns the week name of the given integer
+ * @returns {*}
+ */
+String.prototype.getWeekName = function () {
+    return weekNames[this];
+};
+/**
+ * A constant which gives the week names for the javascript day values
+ * @type {{0: string, 1: string, 2: string, 3: string, 4: string, 5: string, 6: string}}
+ */
+const weekNames = {
     0: 'SUN',
     1: 'MON',
     2: 'TUE',
@@ -43,11 +83,8 @@ var weekNames = {
     5: 'FRI',
     6: 'SAT'
 };
-String.prototype.name = function () {
-    return weekNames[this];
-};
-var timeConst = 60000 * 24 * 60;
-var NVL = function NVL(val, replc) {
+const timeConst = 60000 * 24 * 60;
+const NVL = function NVL(val, replc) {
     if (val === null || val === undefined || val === '')
         return replc != undefined ? replc : '';
     else
@@ -175,6 +212,7 @@ var NVL = function NVL(val, replc) {
                     fullRowSelec: '=?', /*to enable full row selection by clicking anywhere on the row*/
                     showColMenu: '=?', /*to show or hide the column menus*/
                     showGridFoot: '=?',
+                    headerClass: '=?', /*Default header class to bind in the column options while forming them
                     class: '=?', /*add the cell class*/
                     methods: '=?', /*map external methods*/
                     selectRow: '=?', /*select the rows on which you want to do some kind of processing*/
@@ -199,10 +237,9 @@ var NVL = function NVL(val, replc) {
                     scope.maxHeight = scope.maxHeight == undefined ? 'AUTO' : scope.maxHeight;
                     scope.showEdit = scope.showEdit == undefined ? false : scope.showEdit;
                     scope.showGridMenu = scope.showGridMenu == undefined ? true : scope.showGridMenu;
-                    //scope.storageKeyPrefix = scope.storageKeyPrefix == undefined ? '' : scope.storageKeyPrefix;
-                    //scope.showCheck = scope.showCheck == undefined ? false : scope.showCheck;
                     scope.selectRow = scope.selectRow == undefined ? true : scope.selectRow;
                     scope.filterable = scope.filterable == undefined ? false : scope.filterable;
+                    scope.headerClass = scope.headerClass == undefined ? '' : scope.headerClass;
                     scope.headerOffset = scope.headerOffset == undefined ? 20 : scope.headerOffset;
                     scope.autoHeightOffset = scope.autoHeightOffset == undefined ? 30 : scope.autoHeightOffset;
                     scope.class = scope.class == undefined ? '' : scope.class;
@@ -223,14 +260,6 @@ var NVL = function NVL(val, replc) {
                         if ($scope.storageKeyPrefix) {
                             $scope.storageKey = $scope.storageKeyPrefix + $scope.id;
                         }
-                        //if (!storedValues) {
-                        //    storedValues = { filters: {}, sorts: {} };
-                        //}
-                        //try {
-                        //    storedValues = JSON.parse(storedValues);
-                        //} catch (e) {
-                        //    storedValues = { filters: {}, sorts: {} };
-                        //}
                     });
                     $scope.GetStoredValue = function () {
                         if ($scope.storageKeyPrefix) {
@@ -242,32 +271,12 @@ var NVL = function NVL(val, replc) {
                     };
                     $scope.ExportToExcel = function (ev) {
                         console.log(ev);
-                    }
+                    };
                     $scope.Store = function Store(scope) {
-                        //console.log($scope.gridApi.grid.columns);
-                        //if (type === 'filters') {
-                        //    //storedValues[type] ? storedValues[type] : {};
-                        //    angular.forEach($scope.gridApi.grid.columns, function (col) {
-                        //        if (col.field != "selectionRowHeaderCol")
-                        //            storedValues[type][col.field] = col.filter.term;
-                        //    })
-                        //} else if (type === 'sorts') {
-                        //    //storedValues[type] ? storedValues[type] : {};
-                        //    angular.forEach($scope.gridApi.grid.columns, function (col) {
-                        //        if (col.field != "selectionRowHeaderCol")
-                        //            storedValues[type][col.field] = {
-                        //                direction: col.sort.direction,
-                        //                priority: col.sort.priority
-                        //            };
-                        //    })
-                        //}
                         if (!scope) {
                             scope = $scope;
                         }
                         var columnDefs = [];
-                        //cellClass, cellFilter, cellTemplate, colDef, displayName, drawnWidth, enableFiltering, enableSorting, field, filter, filterCellFiltered, filterHeadTemplate,
-                        //headerCellClass, headerCellFilter, headerCellTemplate, headerClass, name, sort, sortCellFiltered, suppressRemoveSort, visible, width
-                        //console.log($scope.gridApi.grid.columns);
                         for (var i = 0; i < scope.gridApi.grid.columns.length; i++) {
                             var col = scope.gridApi.grid.columns[i];
                             if (col.field != "selectionRowHeaderCol") {
@@ -287,7 +296,6 @@ var NVL = function NVL(val, replc) {
                                 json.headerCellClass = col.headerCellClass;
                                 json.headerCellFilter = col.headerCellFilter;
                                 json.headerCellTemplate = col.headerCellTemplate;
-                                json.headerClass = col.headerClass;
                                 json.sort = col.sort;
                                 json.enablePinning = col.enablePinning;
                                 json.pinnedLeft = col.pinnedLeft;
@@ -303,10 +311,8 @@ var NVL = function NVL(val, replc) {
                         if ($scope.storageKeyPrefix) {
                             storage.write($scope.storageKey, JSON.stringify(columnDefs));
                         }
-                        //storage.write(storageKey, JSON.stringify(storedValues));
                     };
                     // NOTE: Defaults for the gridOptions
-                    // $scope.rowHeight = 21;
                     // TODO: get the grid api and check for the handle window resize functionality
                     // TODO: watch data to see if data changes and then if it is valid, render the grid
                     $scope.$watch('data', function () {
@@ -412,12 +418,9 @@ var NVL = function NVL(val, replc) {
                             elm.removeChild(elm.children[0]);
                         } catch (e) {
                         }
-                        //console.log($scope.maxHeight, $scope.autoHeightOffset, FindDataHeight(), FindOffsetHeight());
                         var offset = $scope.autoHeightOffset ? $scope.autoHeightOffset : 0;
                         var dataHeight = FindDataHeight() + 80 + (parseInt($scope.offsetRowHeight) ? parseInt($scope.offsetRowHeight) : 0);
                         var gridMaxHeight = FindOffsetHeight() - offset;
-                        //var maxHeight = 0;
-                        //maxHeight = $scope.maxHeight != 'AUTO' ? $scope.maxHeight : (maxHeight < FindDataHeight() ? maxHeight : FindDataHeight());
                         var calculatedHeight;
                         //If maxHeight is already given which means not auto
                         if ($scope.maxHeight && parseInt($scope.maxHeight) > 0) {
@@ -435,27 +438,14 @@ var NVL = function NVL(val, replc) {
                             }
                         }
                         //Use the offset height
-                        //calculatedHeight = calculatedHeight - offset;
-                        //console.log(calculatedHeight);
                         if ($scope.data && $scope.data.length) {
                             var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid="gridOptions" ' +
-                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow || $scope.export ? 'ui-grid-selection="" ' : '') + 'ui-grid-exporter="" ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
+                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow ? 'ui-grid-selection="" ' : '') + ($scope.export ? 'ui-grid-exporter=""' : '') + ' ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
                                 'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
-                            //el.clientHeight = maxHeight - offset;
                             angular.element(elm).append(el);
                         }
                     };
                     /*Function to clear all the filters on the columns*/
-                    //$scope.ClearAllFilters = function ClearAllFilters() {
-                    //    angular.forEach($scope.gridApi.grid.columns, function (col) {
-                    //        col.filter.term = '';
-                    //    });
-                    //    angular.forEach($scope.gridApi.grid.columns, function (col) {
-                    //        //$log.log(col);
-                    //        storedValues.filters[col.field] = col.filter.term;
-                    //    })
-                    //    storage.write(storageKey, JSON.stringify(storedValues));
-                    //}
                     // TODO: Find the offset height from the top of the grid and the innerHeight of the document
                     // padding
                     var FindOffsetHeight = function () {
@@ -551,6 +541,7 @@ var NVL = function NVL(val, replc) {
                                 o.cellTemplate = cellTemp ? cellTemp : '';
                                 o.enableColumnMenu = $scope.showColMenu;
                                 o.enableColumnResizing = true;
+                                o.headerCellClass = opt.headerCellClass ? $scope.headerClass : '';
                                 o.enableSorting = opt.enableSorting;
                                 o.visible = (opt.visible === undefined ? true : opt.visible);
                                 o.enableFiltering = opt.filterable;
@@ -707,6 +698,7 @@ var NVL = function NVL(val, replc) {
                                 option.filter = colOpts.filter ? colOpts.filter : '';
                                 option.filterCellFiltered = true;
                                 option.visible = !colOpts.hide;
+                                option.headerCellClass = colOpts.headerCellClass;
                                 option.class = colOpts.class ? colOpts.class : '';
                                 option.filterable = colOpts.filterable != undefined ? colOpts.filterable : false;
                                 option.template = colOpts.template ? colOpts.template : '';
@@ -933,7 +925,7 @@ var NVL = function NVL(val, replc) {
                 }
             };
         })
-        .directive('cdkWeekPicker', function () {
+        .directive('cdkWeekPicker', function ($templateCache) {
             return {
                 restrict: 'E',
                 scope: {
@@ -990,18 +982,7 @@ var NVL = function NVL(val, replc) {
                         $scope.show = false;
                     };
                 },
-                template: '<div class="week-picker-wrap"><div class="btn btn-default" data-ng-click="show = !show">Pick Week</div><div data-ng-show="show" class="week-picker">' +
-                '<div class="row">' +
-                '<span class="btn btn-default col-sm-2" data-ng-click="previousYear()"><</span>' +
-                '<span class="btn btn-default col-sm-6">{{year}}</span>' +
-                '<span data-ng-click="nextYear()" class="btn btn-default col-sm-2">></span>' +
-                '<span class="btn btn-danger col-sm-2" data-ng-click="show = false">X</span>' +
-                '</div>' +
-                '<div class="row week" data-ng-repeat="month in months">' +
-                '<span class="col-sm-2 btn btn-default">{{month.month}}</span>' +
-                '<span class="col-sm-2 btn btn-default" data-ng-repeat="day in month.days" data-ng-click="SelectWeek(day, month.month, year)">{{day}}</span>' +
-                '</div>' +
-                '</div></div>'
+                template: $templateCache.get('cdkweekpicker.html')
             }
         })
         .directive('cdkHeader', function ($templateCache) {
@@ -1022,8 +1003,40 @@ var NVL = function NVL(val, replc) {
                 }
             }
         })
+        .directive('cdkPopover', function ($compile, $sce) {
+            return {
+                restrict: 'E',
+                template: '<div><span class="popover" data-ng-mouseenter="ShowPopup()" data-ng-mouseleave="HidePopup()"><span data-ng-hide="list.length">{{list[0]}}</span><a href="#" data-ng-show="list.length">{{list[0]}}</a><span data-ng-show="show && list.length" class="popover-wrap"><span class="title">{{title}}</span><ul><li data-ng-repeat="itm in list">{{itm}}</li></ul></span></span></div>',
+                scope: {
+                    list: '=?',
+                    title: '=?',
+                    show: '=?'
+                },
+                controller: function ($scope) {
+                    $scope.ShowPopup = function () {
+                        $scope.show = true;
+                    };
+                    $scope.HidePopup = function () {
+                        $scope.show = false;
+                    };
+                }
+            }
+        })
         .run(function ($templateCache) {
             $templateCache.put('cdkmultiselect.html', '<div class="cdk-multi-wrap" ng-mouseleave="showDrop=false"><input type="text" readonly="readonly" data-ng-click="ToggleDropdown()" value="{{displayText}}"/>        <span class="select-icon" data-ng-click="ToggleDropdown()">▼</span>    <div class="select-count">{{all ? data.length : data.findMatch(\'selected\',true).length}}</div>    <div class="cdk-multi-drop" ng-class="showDrop?\'expand\':\'collapse\'">        <input ng-show="search" class="search-input" ng-model="searchString" type="text" placeholder="Search">        <input type="button" class="select-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'checkall\')"    ng-disabled="checkAll"    value="✔" title="Check All"/>        <input type="button" class="unselect-btn cdk-btn-icon cdk-btn" ng-click="ToggleAll(\'uncheckall\')"    ng-disabled="uncheckAll"    value="X" title="Uncheck All"/>        <div class="values">        <ul>        <li title="{{val[tip]}}" ng-class="val.selected?\'check\':\'uncheck\'" ng-show="val.shown"    ng-repeat="val in data track by $index" value="val[prop]"    ng-click="CheckIt($index)">        {{val[text]}}    </li>    </ul>    </div>    </div>    </div>    ')
             $templateCache.put('cdkheader.html', '<div class="cdk-header-wrap"><img id="Image1" data-ng-src="{{logoUrl}}" class="header-logo" /><span class="app-title">{{appTitle}}</span><div class="header-user-wrap"><span class="header-user-name">{{userName}}</span><span class="header-user-role" ng-if="(! userRoles.length)||(userRoles.length == 1)">{{userRole}}</span><select ng-change="roleChanged()" ng-options="rol for rol in userRoles" ng-model="userRole" ng-hide="(! userRoles.length)||(userRoles.length < 2)"></select> <span class="header-server-name">{{hostName}}</span></div><div><div class="page-title">{{pageTitle}}</div></div></div>');
+            $templateCache.put('cdkweekpicker.html', '<div class="week-picker-wrap"><div class="btn btn-default" data-ng-click="show = !show">Pick Week</div><div data-ng-show="show" class="week-picker">' +
+                '<div class="row">' +
+                '<span class="btn btn-default col-sm-2" data-ng-click="previousYear()"><</span>' +
+                '<span class="btn btn-default col-sm-6">{{year}}</span>' +
+                '<span data-ng-click="nextYear()" class="btn btn-default col-sm-2">></span>' +
+                '<span class="btn btn-danger col-sm-2" data-ng-click="show = false">X</span>' +
+                '</div>' +
+                '<div class="row week" data-ng-repeat="month in months">' +
+                '<span class="col-sm-2 btn btn-default">{{month.month}}</span>' +
+                '<span class="col-sm-2 btn btn-default" data-ng-repeat="day in month.days" data-ng-click="SelectWeek(day, month.month, year)">{{day}}</span>' +
+                '</div>' +
+                '</div></div>');
+            $templateCache.put('cdkpopover.html', '<div>{{list.join(\',\')}}</div>')
         });
 })(angular);
