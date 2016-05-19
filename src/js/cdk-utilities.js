@@ -559,7 +559,7 @@ const NVL = function NVL(val, replc) {
                                 //o.filter = { term: $scope.GetStoredValue(o.field, 'filters') };
                                 o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
                                     'colFilter.disableCancelFilterButton === true}"><input type="text" class="ui-grid-filter-input" ' +
-                                    'ng-model="colFilter.term" ng-model-options="{debounce:50}" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
+                                    'ng-model="colFilter.term" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
                                     'ng-click="removeFilter(colFilter, $index)" ng-if="!colFilter.disableCancelFilterButton" ng-disabled="colFilter.term === undefined || colFilter.term === null || ' +
                                     'colFilter.term === \'\'" ng-show="colFilter.term !== undefined &amp;&amp; colFilter.term !== null &amp;&amp; colFilter.term !== \'\'"><div>' +
                                     '<i class="ui-grid-icon-cancel" ui-grid-one-bind-aria-label="aria.removeFilter" aria-label="Remove Filter">&nbsp;</i></div></div></div>';
