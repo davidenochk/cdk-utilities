@@ -30,6 +30,21 @@ Array.prototype.findAll = function (vl, c) {
     }
     return v;
 };
+Array.prototype.ReplaceQuote = function () {
+    var arr = [];
+    angular.forEach(this, function (ths, i) {
+        arr.push(ths.replace("'", '').replace("'", ''));
+    });
+    return arr;
+};
+Array.prototype.findValue = function (val) {
+    if (this) {
+        for (var i = 0; i < this.length; i++)
+            if (this[i] == val)
+                return 1;
+        return 0;
+    }
+};
 /**
  * Prototype on array to return one match
  * @param vl
@@ -63,11 +78,58 @@ Array.prototype.findMatch = function (prop, str, all) {
     }
     return all;
 };
+Array.prototype.distinct = function () {
+    var n = {}, r = [];
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] !== null && this[i] !== '') {
+            if (!n[this[i]]) {
+                n[this[i]] = true;
+                r.push(this[i]);
+            }
+        }
+    }
+    return r;
+};
+Array.prototype.distinctValues = function (col) {
+    var n = {}, r = [];
+    for (var i = 0; i < this.length; i++) {
+        if (this[i][col] != null && this[i][col] != '') {
+            if (!n[this[i][col]]) {
+                n[this[i][col]] = true;
+                r.push(this[i][col]);
+            }
+        }
+    }
+    return r;
+};
+/**
+ * Prototype on array to find all matches and get a certain value using selector
+ * @param vl
+ * @param c
+ * @param selector
+ * @returns {Array}
+ */
+Array.prototype.findAllValues = function (vl, c, selector) {
+    var v = [];
+    for (var i = 0; i < this.length; i++) {
+        //get the array item
+        if (this[i][c] == vl)
+            v.push("'" + this[i][selector] + "'");
+    }
+    return v;
+};
 /**
  * Returns the week name of the given integer
  * @returns {*}
  */
 String.prototype.getWeekName = function () {
+    return weekNames[this];
+};
+/**
+ * Returns the week name of the given integer
+ * @returns {*}
+ */
+String.prototype.name = function () {
     return weekNames[this];
 };
 /**
@@ -83,6 +145,14 @@ const weekNames = {
     5: 'FRI',
     6: 'SAT'
 };
+const weekday = [
+    "Sun",
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat"];
 const timeConst = 60000 * 24 * 60;
 const NVL = function NVL(val, replc) {
     if (val === null || val === undefined || val === '')
@@ -91,7 +161,7 @@ const NVL = function NVL(val, replc) {
         return val;
 };
 (function () {
-    angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.exporter', 'ui.grid.autoResize', 'ui.grid.pinning'])
+    angular.module('cdk-utilities', ['ui.grid', 'ui.grid.autoResize', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.exporter', 'ui.grid.autoResize', 'ui.grid.pinning', 'ui.grid.edit'])
         .service('progress', function () {
             var progressObj = {count: 0};
             this.GetProgressObj = function () {
@@ -206,6 +276,7 @@ const NVL = function NVL(val, replc) {
                     editRow: '&', /*handler for editing the row*/
                     headerOffset: '=?', /*header offset value*/
                     showGridMenu: '=?',
+                    enableColumnResizing: '=?', /*Gridoption for column resizing*/
                     autoHeightOffset: '=?', /*auto height offset calculation*/
                     getTemplate: '&', /*for getting the templates*/
                     storageKeyPrefix: '=?', /*For localstorage, to save the column definitions*/
@@ -223,7 +294,7 @@ const NVL = function NVL(val, replc) {
                     priority: '@', /*sort on the column according to this priority*/
                     offsetRowHeight: '@', /*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
                     rowHeight: '@', /*to give height to the row*/
-                    selected: '=?', /*Exposes the selected items*/
+                    selectedd: '=?', /*Exposes the selected items*/
                     menuOptions: '=?', /*Add custom menu options and methods*/
                 },
                 link: function cdkTableLink(scope) {
@@ -255,6 +326,7 @@ const NVL = function NVL(val, replc) {
                     scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
                     scope.showColMenu = scope.showColMenu === undefined ? true : scope.showColMenu;
                     scope.menuOptions = scope.menuOptions === undefined ? [] : scope.menuOptions;
+                    scope.enableColumnResizing = scope.enableColumnResizing === undefined ? true : scope.enableColumnResizing;
                 },
                 controller: function cdkTableController($scope, $compile, $window, $attrs, $log, $filter, uiGridConstants, storage) {
                     $scope.$watch('storageKeyPrefix', function () {
@@ -299,6 +371,8 @@ const NVL = function NVL(val, replc) {
                                 json.headerCellTemplate = col.headerCellTemplate;
                                 json.headerClass = col.headerClass;
                                 json.sort = col.sort;
+                                json.type = col.type;
+                                json.sortingAlgorithm = col.sortingAlgorithm;
                                 json.enablePinning = col.enablePinning;
                                 json.pinnedLeft = col.pinnedLeft;
                                 json.pinnedRight = col.pinnedRight;
@@ -307,6 +381,7 @@ const NVL = function NVL(val, replc) {
                                 json.visible = col.visible;
                                 json.footerCellTemplate = col.footerCellTemplate;
                                 json.width = col.width;
+                                json.enableColumnResizing = col.enableColumnResizing;
                                 columnDefs.push(json);
                             }
                         }
@@ -314,6 +389,7 @@ const NVL = function NVL(val, replc) {
                             storage.write($scope.storageKey, JSON.stringify(columnDefs));
                         }
                     };
+                    var _this = $scope;
                     // NOTE: Defaults for the gridOptions
                     // TODO: get the grid api and check for the handle window resize functionality
                     // TODO: watch data to see if data changes and then if it is valid, render the grid
@@ -337,12 +413,14 @@ const NVL = function NVL(val, replc) {
                                     exporterMenuPdf: false,
                                     exporterMenuCsv: false,
                                     enableColumnMenu: $scope.showColMenu,
+                                    enableColumnResizing: $scope.enableColumnResizing,
                                     enableFullRowSelection: $scope.fullRowSelec,
                                     headerClass: $scope.headerClass,
                                     enableHorizontalScrollbar: $scope.horScroll ? uiGridConstants.scrollbars.ALWAYS : uiGridConstants.scrollbars.NEVER,
                                     rowTemplate: '<div data-ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
                                     onRegisterApi: function (gridApi) {
                                         $scope.gridApi = gridApi;
+                                        //console.log($scope.gridApi);
                                         if (gridApi.colResizable) {
                                             gridApi.colResizable.on.columnSizeChanged($scope, function () {
                                                 $scope.Store();
@@ -355,10 +433,10 @@ const NVL = function NVL(val, replc) {
                                         }
                                         if (gridApi.selection) {
                                             gridApi.selection.on.rowSelectionChanged($scope, function () {
-                                                $scope.selected = gridApi.selection.getSelectedRows();
+                                                _this.selectedd = gridApi.selection.getSelectedRows();
                                             });
                                             gridApi.selection.on.rowSelectionChangedBatch($scope, function () {
-                                                $scope.selected = gridApi.selection.getSelectedRows();
+                                                _this.selectedd = gridApi.selection.getSelectedRows();
                                             });
                                         }
                                         gridApi.core.on.filterChanged($scope, function () {
@@ -442,8 +520,8 @@ const NVL = function NVL(val, replc) {
                         }
                         //Use the offset height
                         if ($scope.data && $scope.data.length) {
-                            var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid="gridOptions" ' +
-                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow ? 'ui-grid-selection="" ' : '') + ($scope.export ? 'ui-grid-exporter=""' : '') + ' ui-grid-resize-columns data-ui-grid-auto-resize="" ' +
+                            var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid-edit="" data-ui-grid="gridOptions" ' +
+                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow ? 'ui-grid-selection="" ' : '') + ($scope.export ? 'ui-grid-exporter=""' : '') + ($scope.enableColumnResizing ? ' ui-grid-resize-columns ' : '') + ' data-ui-grid-auto-resize="" ' +
                                 'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
                             angular.element(elm).append(el);
                         }
@@ -543,7 +621,7 @@ const NVL = function NVL(val, replc) {
                                 o.cellFilter = opt.filter ? opt.filter : '';
                                 o.cellTemplate = cellTemp ? cellTemp : '';
                                 o.enableColumnMenu = $scope.showColMenu;
-                                o.enableColumnResizing = true;
+                                o.enableColumnResizing = opt.enableColumnResizing;
                                 o.headerCellClass = opt.headerCellClass ? $scope.headerClass : '';
                                 o.enableSorting = opt.enableSorting;
                                 o.visible = (opt.visible === undefined ? true : opt.visible);
@@ -559,7 +637,7 @@ const NVL = function NVL(val, replc) {
                                 //o.filter = { term: $scope.GetStoredValue(o.field, 'filters') };
                                 o.filterHeaderTemplate = '<div class="ui-grid-filter-container" ng-repeat="colFilter in col.filters" ng-class="{\'ui-grid-filter-cancel-button-hidden\' : ' +
                                     'colFilter.disableCancelFilterButton === true}"><input type="text" class="ui-grid-filter-input" ' +
-                                    'ng-model="colFilter.term" ng-model-options="{debounce:50}" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
+                                    'ng-model="colFilter.term" aria-label="Filter for column" placeholder=""><div role="button" class="ui-grid-filter-button ng-scope"' +
                                     'ng-click="removeFilter(colFilter, $index)" ng-if="!colFilter.disableCancelFilterButton" ng-disabled="colFilter.term === undefined || colFilter.term === null || ' +
                                     'colFilter.term === \'\'" ng-show="colFilter.term !== undefined &amp;&amp; colFilter.term !== null &amp;&amp; colFilter.term !== \'\'"><div>' +
                                     '<i class="ui-grid-icon-cancel" ui-grid-one-bind-aria-label="aria.removeFilter" aria-label="Remove Filter">&nbsp;</i></div></div></div>';
@@ -568,6 +646,7 @@ const NVL = function NVL(val, replc) {
                                 o.type = opt.type ? opt.type : '';
                                 if (o.type.length) {
                                     if (o.type === 'floatnumber') {
+                                        o.type = 'number';
                                         o.sortingAlgorithm = function (a, b) {
                                             if (a === null && b !== null)
                                                 return -1;
@@ -585,6 +664,7 @@ const NVL = function NVL(val, replc) {
                                         }
                                     }
                                     else if (o.type === 'date') {
+                                        o.type = 'date';
                                         o.sortingAlgorithm = function (a, b) {
                                             //if (a === null && b !== null)
                                             //    return -1;
@@ -711,11 +791,11 @@ const NVL = function NVL(val, replc) {
                                 option.defSort = colOpts.defSort ? colOpts.defSort : '';
                                 option.priority = colOpts.priority ? colOpts.priority : '';
                                 option.enablePinning = colOpts.enablePinning ? colOpts.enablePinning : false;
+                                option.enableColumnResizing = colOpts.enableColumnResizing !== undefined ? colOpts.enableColumnResizing : true;
                                 option.pinnedLeft = colOpts.pinnedLeft ? colOpts.pinnedLeft : false;
                                 option.pinnedRight = colOpts.pinnedRight ? colOpts.pinnedRight : false;
                                 option.cellTooltip = colOpts.cellTooltip ? colOpts.cellTooltip : false;
                                 columnOptions.push(option);
-                                //Dummy ccomment
                             }
                         }
                         //console.log(columnOptions);
@@ -841,7 +921,7 @@ const NVL = function NVL(val, replc) {
                     ///Form filter text
                     $scope.BuildLabelText = function () {
                         var str = '';
-                        var len = $scope.data.findMatch('selected', true).length;
+                        var len = $scope.data ? $scope.data.findMatch('selected', true).length : 0;
                         str = len ? '(Total : ' + len + ')' : '';
                         return str;
                     };
@@ -1000,7 +1080,7 @@ const NVL = function NVL(val, replc) {
                     pageTitle: '=',
                     hostName: '=?',
                     logoUrl: '=',
-                    roleChanged: '=?'
+                    roleChanged: '&'
                 },
                 template: $templateCache.get('cdkheader.html'),
                 controller: function ($scope) {
