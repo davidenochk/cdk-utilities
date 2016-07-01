@@ -17,18 +17,16 @@
     <script src="./app.js" type="application/javascript"></script>
 </head>
 <body data-ng-controller="demoController">
-
-<cdk-table model="[{col1:1},{col1:2}]" options="[{columnID:'col1',columnName:'Column 1'}]" offset-row-height="-42"
-           select-row="false" show-grid-menu="false" auto-generate-columns="false" show-grid-foot="'false'"
-           show-col-menu="false" id="MFGTable1"></cdk-table>
-
-<cdk-table id="MFGTable" class="mar-up" model="data" auto-generate-columns="false"
+<div ng-click="GetData()">Click</div>
+<div ng-click="GetSelectedRows()">SelectedRows</div>
+<cdk-table id="MFGTable" class="mar-up" model="data" auto-generate-columns="false" get-template="GetTemplate(value)"
            header-offset="25" max-height="AUTO" row-height="21" export="true" offset-row-height="20" select-row="true"
-           menu-options='menuOptions' selected="selected" enable-column-resizing="true" show-grid-foot="true"
-           methods="{'exporttoExcel':exporttoExcel}"
+           menu-options='menuOptions' selected-items="selected" enable-column-resizing="true" show-grid-foot="true"
+           get-template="GetTemplate(value)"
+           methods="{'exporttoExcel':exporttoExcel}" selected-rows="gridSelectedRows"
            options="[
-                    {columnID:'MANUFACTURER_NAME', columnName:'Manufacturer', width:'AUTO', filterable:true, enableColumnResizing:false},
-                    {columnID:'PARTY_NUMBER', columnName:'Party #', width:'AUTO', filterable:true, enableColumnResizing:true},
+                    {columnID:'MANUFACTURER_NAME', columnName:'Manufacturer', width:'AUTO', template:'temp', filterable:true, enableColumnResizing:false},
+                    {columnID:'PARTY_NUMBER', columnName:'Party #', width:'AUTO', filterable:true, template:'temp', enableColumnResizing:true},
                     {columnID:'PARTY_NAME',columnName:'Party Name',  width:'AUTO', filterable:true, enableColumnResizing:true},
                     {columnID:'SEGMENT_CODE',columnName:'Sales Segment',  width:'AUTO', filterable:true, enableColumnResizing:false},
                     {columnID:'SALES_REGION',columnName:'Sales Region',  width:'AUTO', filterable:true, enableColumnResizing:false},

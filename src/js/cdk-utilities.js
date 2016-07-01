@@ -183,7 +183,8 @@ const NVL = function NVL(val, replc) {
                 if (val)
                     aDate = new Date(val);
                 if (aDate && aDate != 'Invalid Date') {
-                    aDate = new Date(aDate.getTime() + aDate.getTimezoneOffset() * 60000);
+                    if (typeof(val) == 'string' && val.indexOf('/') < 0)
+                        aDate = new Date(aDate.getTime() + aDate.getTimezoneOffset() * 60000);
                     var dt = $filter('date')(aDate, 'MM/dd/yyyy');
                     var month = dt.substring(0, dt.indexOf('/'));
                     var day = dt.substring(dt.indexOf('/') + 1, dt.lastIndexOf('/'));
@@ -283,8 +284,9 @@ const NVL = function NVL(val, replc) {
                     fullRowSelec: '=?', /*to enable full row selection by clicking anywhere on the row*/
                     showColMenu: '=?', /*to show or hide the column menus*/
                     showGridFoot: '=?',
+                    selectedRows: '=?',
                     headerClass: '=?', /*Default header class to bind in the column options while forming them
-                    class: '=?', /*add the cell class*/
+                     class: '=?', /*add the cell class*/
                     methods: '=?', /*map external methods*/
                     selectRow: '=?', /*select the rows on which you want to do some kind of processing*/
                     values: '=?', /*pass on values from external scope to the appscope*/
@@ -294,7 +296,7 @@ const NVL = function NVL(val, replc) {
                     priority: '@', /*sort on the column according to this priority*/
                     offsetRowHeight: '@', /*used to calculate the extra height needed for the grid while using rowHeight for calculating dataHeight through rows*/
                     rowHeight: '@', /*to give height to the row*/
-                    selectedd: '=?', /*Exposes the selected items*/
+                    selectedItems: '=?', /*Exposes the selected items*/
                     menuOptions: '=?', /*Add custom menu options and methods*/
                 },
                 link: function cdkTableLink(scope) {
@@ -317,12 +319,12 @@ const NVL = function NVL(val, replc) {
                     scope.class = scope.class == undefined ? '' : scope.class;
                     scope.methods = scope.methods == undefined ? {} : scope.methods;
                     scope.showColumnFooter = scope.showFoots === undefined ? false : scope.showFoots;
-                    scope.showGridFoot = scope.showGridFoot === undefined ? false : scope.showGridFoot;
+                    scope.showGridFoot = scope.showGridFoot === undefined ? true : scope.showGridFoot;
                     scope.horScroll = scope.horScroll === undefined ? true : scope.horScroll;
                     scope.offsetRowHeight = scope.offsetRowHeight === undefined ? 0 : scope.offsetRowHeight;
                     scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
                     scope.rowHeight = scope.rowHeight === undefined ? 21 : scope.rowHeight;
-                    scope.selected = scope.selected === undefined ? '' : scope.selected;
+                    scope.selectedItems = scope.selectedItems === undefined ? [] : scope.selectedItems;
                     scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
                     scope.showColMenu = scope.showColMenu === undefined ? true : scope.showColMenu;
                     scope.menuOptions = scope.menuOptions === undefined ? [] : scope.menuOptions;
@@ -364,7 +366,7 @@ const NVL = function NVL(val, replc) {
                                 json.enableSorting = col.enableSorting;
                                 json.field = col.field;
                                 json.filter = col.filter;
-                                json.filterCellFiltered = col.filterCellFiltered;
+                                json.filterCellFiltered = true;
                                 json.filterHeadTemplate = col.filterHeadTemplate;
                                 json.headerCellClass = col.headerCellClass;
                                 json.headerCellFilter = col.headerCellFilter;
@@ -432,11 +434,13 @@ const NVL = function NVL(val, replc) {
                                             });
                                         }
                                         if (gridApi.selection) {
+                                            $scope.selectedRows = gridApi.selection.getSelectedRows;
                                             gridApi.selection.on.rowSelectionChanged($scope, function () {
-                                                _this.selectedd = gridApi.selection.getSelectedRows();
+                                                $scope.selectedItems = gridApi.selection.getSelectedRows();
+
                                             });
                                             gridApi.selection.on.rowSelectionChangedBatch($scope, function () {
-                                                _this.selectedd = gridApi.selection.getSelectedRows();
+                                                $scope.selectedItems = gridApi.selection.getSelectedRows();
                                             });
                                         }
                                         gridApi.core.on.filterChanged($scope, function () {
@@ -521,7 +525,7 @@ const NVL = function NVL(val, replc) {
                         //Use the offset height
                         if ($scope.data && $scope.data.length) {
                             var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid-edit="" data-ui-grid="gridOptions" ' +
-                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow ? 'ui-grid-selection="" ' : '') + ($scope.export ? 'ui-grid-exporter=""' : '') + ($scope.enableColumnResizing ? ' ui-grid-resize-columns ' : '') + ' data-ui-grid-auto-resize="" ' +
+                                'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow ? 'data-ui-grid-selection="" ' : '') + ($scope.export ? 'ui-grid-exporter=""' : '') + ($scope.enableColumnResizing ? ' ui-grid-resize-columns ' : '') + ' data-ui-grid-auto-resize="" ' +
                                 'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
                             angular.element(elm).append(el);
                         }
