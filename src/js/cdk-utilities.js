@@ -275,6 +275,7 @@ const NVL = function NVL(val, replc) {
                     filterable: '=?', /*to be able to filter on the column*/
                     //showCheck: '=?',/*show check column at the start so that it can be selected*/
                     editRow: '&', /*handler for editing the row*/
+                    enableEditing: '=?', /*handler for editing the row*/
                     headerOffset: '=?', /*header offset value*/
                     showGridMenu: '=?',
                     enableColumnResizing: '=?', /*Gridoption for column resizing*/
@@ -325,6 +326,7 @@ const NVL = function NVL(val, replc) {
                     scope.defSort = scope.defSort === undefined ? 'ASC' : scope.defSort;
                     scope.rowHeight = scope.rowHeight === undefined ? 21 : scope.rowHeight;
                     scope.selectedItems = scope.selectedItems === undefined ? [] : scope.selectedItems;
+                    scope.enableEditing = scope.enableEditing === undefined ? false : scope.enableEditing;
                     scope.fullRowSelec = scope.fullRowSelec === undefined ? true : scope.fullRowSelec;
                     scope.showColMenu = scope.showColMenu === undefined ? true : scope.showColMenu;
                     scope.menuOptions = scope.menuOptions === undefined ? [] : scope.menuOptions;
@@ -524,7 +526,7 @@ const NVL = function NVL(val, replc) {
                         }
                         //Use the offset height
                         if ($scope.data && $scope.data.length) {
-                            var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" data-ui-grid-edit="" data-ui-grid="gridOptions" ' +
+                            var el = $compile('<div class="grid-wrapper"><div data-ng-show="data && data.length" class="grid" ' + ($scope.enableEditing ? 'data-ui-grid-edit="" ' : '') + ' data-ui-grid="gridOptions" ' +
                                 'ui-grid-auto-resize="" ui-grid-pinning="" ' + ($scope.selectRow ? 'data-ui-grid-selection="" ' : '') + ($scope.export ? 'ui-grid-exporter=""' : '') + ($scope.enableColumnResizing ? ' ui-grid-resize-columns ' : '') + ' data-ui-grid-auto-resize="" ' +
                                 'style="margin:0 auto; width:' + ($scope.gridWidth + 50) + 'px !important; max-height:' + calculatedHeight + 'px !important;max-width:100%;"></div></div>')($scope);
                             angular.element(elm).append(el);
@@ -535,7 +537,7 @@ const NVL = function NVL(val, replc) {
                     // padding
                     var FindOffsetHeight = function () {
                         var elm = document.getElementById($scope.id);
-                        var height = document.body.scrollHeight;
+                        var height = window.innerHeight;
                         return height - elm.offsetTop;
                     };
                     /**
